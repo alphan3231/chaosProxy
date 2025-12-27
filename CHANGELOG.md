@@ -16,3 +16,5 @@ All notable changes to this project will be documented in this file.
 - Implemented `TrafficLogger` middleware to capture Request/Response pairs.
 - Added `PublishTraffic` method to Redis client for async logging to `chaos:traffic` channel.
 - Added `/healthz` endpoint for checking service and Redis status.
+- Key Phase 3: Setup Python environment structure (`brain/`).
+- Implemented basic Redis consumer in `brain/main.py`.
