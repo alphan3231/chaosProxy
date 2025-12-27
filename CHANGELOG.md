@@ -23,4 +23,13 @@ All notable changes to this project will be documented in this file.
 - Added `verify_ghost.sh` for semantic verification of recovery mode.
 - **Phase 5:** Initialized `dashboard` (Next.js 14) for real-time monitoring.
 - Added Redis Stats tracking (`request_count`, `ghost_count`) to Brain and Proxy.
-- Added `verify_ghost.sh` for semantic verification of recovery mode.
+
+### 🔒 Security Hardening
+- Added Redis password authentication support.
+- Implemented request body size limit (1MB) to prevent DoS attacks.
+- Added sensitive header filtering (`Authorization`, `Cookie`, etc.).
+- Implemented body content sanitization (password, token, secret masking).
+- Added Rate Limiting middleware (100 req/min per IP).
+- Implemented Dashboard Basic Authentication.
+- Added CORS configuration and security headers.
+- Created `.env.example` for secure configuration reference.

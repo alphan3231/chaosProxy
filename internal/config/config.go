@@ -5,9 +5,11 @@ import (
 )
 
 type Config struct {
-	Port      string
-	TargetURL string
-	RedisAddr string
+	Port          string
+	TargetURL     string
+	RedisAddr     string
+	RedisPassword string
+	AppEnv        string
 }
 
 func getEnv(key, fallback string) string {
@@ -19,8 +21,10 @@ func getEnv(key, fallback string) string {
 
 func LoadConfig() *Config {
 	return &Config{
-		Port:      getEnv("PORT", "8080"),
-		TargetURL: getEnv("TARGET_URL", "http://httpbin.org"),
-		RedisAddr: getEnv("REDIS_ADDR", "localhost:6379"),
+		Port:          getEnv("PORT", "8080"),
+		TargetURL:     getEnv("TARGET_URL", "http://httpbin.org"),
+		RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),
+		RedisPassword: getEnv("REDIS_PASSWORD", ""),
+		AppEnv:        getEnv("APP_ENV", "development"),
 	}
 }

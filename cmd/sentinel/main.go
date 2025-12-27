@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"time"
 
 	"github.com/elliot/chaosProxy/internal/config"
 	"github.com/elliot/chaosProxy/internal/handlers"
@@ -18,7 +19,7 @@ func main() {
 	cfg := config.LoadConfig()
 
 	// Initialize Redis
-	redisClient, err := redis.NewClient(cfg.RedisAddr)
+	redisClient, err := redis.NewClient(cfg.RedisAddr, cfg.RedisPassword)
 	if err != nil {
 		log.Fatalf("Failed to initialize Redis: %v", err)
 	}
@@ -58,7 +59,7 @@ func main() {
 
 		log.Printf("💀 Ghost Mode failed (no data found). Returning 502.")
 		w.WriteHeader(http.StatusBadGateway)
-		w.Write([]byte("Backend Unavailable and Ghost Mode failed."))
+		w.Write([]byte(`{"error": "Service temporarily unavailable"}`))
 	}
 
 	// Update the Director to set the Host header correctly
@@ -83,9 +84,10 @@ func main() {
 	mux.Handle("/", proxyHandler)
 
 	// Wrap handler with Middleware Chain
-	// Order: Recovery -> Logger -> TrafficLogger -> Mux
+	// Order: Recovery -> RateLimit -> Logger -> TrafficLogger -> Mux
+	rateLimiter := middleware.NewRateLimiter(100, time.Minute) // 100 requests per minute per IP
 	trafficMiddleware := middleware.TrafficLogger(redisClient)
-	handler := middleware.Chain(mux, trafficMiddleware, middleware.Logger, middleware.Recovery)
+	handler := middleware.Chain(mux, trafficMiddleware, middleware.Logger, middleware.RateLimit(rateLimiter), middleware.Recovery)
 
 	// Start the Server
 	log.Printf("👻 Chaos-Proxy Sentinel starting on :%s", cfg.Port)
