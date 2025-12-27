@@ -1,11 +1,11 @@
 # Changelog
 
-Tüm proje değişiklikleri bu dosyada tutulacaktır.
+All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
 ### 🚀 Added
-- Proje iskeleti oluşturuldu (`cmd`, `internal`, `pkg`, `configs`).
-- Go modülü başlatıldı: `github.com/elliot/chaosProxy`.
-- Redis altyapısı için `docker-compose.yml` eklendi.
-- `ROADMAP.md` ile proje vizyonu ve planı dokümante edildi.
+- Created project skeleton (`cmd`, `internal`, `pkg`, `configs`).
+- Initialized Go module: `github.com/elliot/chaosProxy`.
+- Added `docker-compose.yml` for Redis infrastructure.
+- Documented project vision and plan in `ROADMAP.md`.

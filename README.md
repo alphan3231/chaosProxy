@@ -1,47 +1,47 @@
 # 👻 Chaos-Proxy
 
-**API'ler İçin "Ölümsüzlük" Katmanı**
+**Immortality Layer for APIs**
 
-Chaos-Proxy, microservice ve API mimarilerinde backend servislerinin çökmesi durumunda bile istemcilere (clients) kesintisiz hizmet vermeyi sağlayan akıllı bir Reverse Proxy'dir.
+Chaos-Proxy is a smart Reverse Proxy designed for microservice and API architectures. It ensures continuous service availability to clients even when backend services fail.
 
-Normal çalışma zamanında trafiği izler ve öğrenir (The Sentinel & The Brain). Backend çöktüğünde ise "Ghost Mode" devreye girer ve öğrenilen verilerle gerçekçi cevaplar üretmeye devam eder.
+During normal operation, it monitors and learns from traffic (The Sentinel & The Brain). When the backend crashes, "Ghost Mode" activates, generating realistic responses based on learned data.
 
-## 🚀 Özellikler
+## 🚀 Features
 
-- **🪟 Sentinel Proxy (Go):** Yüksek performanslı, düşük gecikmeli reverse proxy.
-- **🧠 The Brain (Python + AI):** Trafik analizi ve response modelleme.
-- **👻 Ghost Mode:** Backend kesintilerinde otomatik devreye giren akıllı simülasyon.
-- **⚡ Redis Backed:** Hızlı veri erişimi ve cache yönetimi.
+- **🪟 Sentinel Proxy (Go):** High-performance, low-latency reverse proxy.
+- **🧠 The Brain (Python + AI):** Traffic analysis and response modeling.
+- **👻 Ghost Mode:** Smart simulation that automatically activates during backend outages.
+- **⚡ Redis Backed:** Fast data access and cache management.
 
-## 🛠 Kurulum
+## 🛠 Installation
 
-### Gereksinimler
+### Requirements
 - Go 1.21+
 - Python 3.10+
 - Docker & Docker Compose
 
-### Hızlı Başlangıç
+### Quick Start
 
-1. **Repoyu klonlayın:**
+1. **Clone the repo:**
    ```bash
    git clone https://github.com/elliot/chaosProxy.git
    cd chaosProxy
    ```
 
-2. **Altyapıyı ayağa kaldırın (Redis):**
+2. **Start the infrastructure (Redis):**
    ```bash
    docker-compose up -d
    ```
 
-3. **Proxy'yi çalıştırın:**
+3. **Run the Proxy:**
    ```bash
    go run cmd/sentinel/main.go
    ```
 
-## 🗺 Yol Haritası
+## 🗺 Roadmap
 
-Detaylı gelişim planı için [ROADMAP.md](ROADMAP.md) dosyasına göz atabilirsiniz.
+See [ROADMAP.md](ROADMAP.md) for the detailed development plan.
 
-## 📄 Lisans
+## 📄 License
 
 MIT

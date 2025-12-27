@@ -1,64 +1,64 @@
-# Chaos-Proxy: Yol Haritası (Roadmap)
+# Chaos-Proxy: Roadmap
 
-## 🎯 Proje Vizyonu
-**Chaos-Proxy**, API servisleri için bir "ölümsüzlük" katmanıdır. Backend servisleri ve istemciler (client) arasına girer, normal zamanda trafiği izleyip öğrenir, backend çöktüğünde ise yapay zeka destekli "Ghost Mode" ile trafiği simüle ederek kesintisiz hizmet algısı yaratır.
-
----
-
-## 🏗 Mimari Genel Bakış
-Sistem 3 ana bileşenden oluşur:
-1.  **The Sentinel (Go):** Yüksek performanslı Reverse Proxy. Trafiği karşılar, Redis'e loglar ve gerekirse Ghost response döner.
-2.  **The Memory (Redis):** Canlı istek/cevap verilerinin ve AI modellerinin (veya kurallarının) tutulduğu hızlı önbellek.
-3.  **The Brain (Python):** Arka planda çalışır. Redis'teki veriyi analiz eder, pattern'leri öğrenir ve "Ghost Response" modellerini oluşturur.
+## 🎯 Project Vision
+**Chaos-Proxy** is an "immortality" layer for API services. It sits between backend services and clients, monitoring and learning from traffic during normal operation. When the backend fails, it activates AI-powered "Ghost Mode" to simulate traffic, creating a perception of uninterrupted service.
 
 ---
 
-## 🚀 Geliştirme Fazları
-
-### Faz 1: The Sentinel (Temel Proxy ve İzleme)
-*Hedef: Trafiği aktaran ve kaydeden çalışan bir Go Proxy.*
-
-- [ ] **Proje Kurulumu:** Go modül yapısı ve temel dizinler.
-- [ ] **Reverse Proxy Çekirdeği:** `net/http/httputil` kullanarak temel proxy mantığı.
-- [ ] **Middleware Yapısı:** Request/Response body'sini yakalamak için hook noktaları.
-- [ ] **Redis Entegrasyonu:** Her işlem (Method, Path, Body, Response) için loglama yapısı.
-- [ ] **Health Check:** Backend'in hayatta olup olmadığını sürekli kontrol eden mekanizma.
-
-### Faz 2: The Brain (Öğrenme Motoru)
-*Hedef: Normal trafikten anlamlı veri çıkaran Python servisi.*
-
-- [ ] **Veri Tüketici (Python):** Redis'ten logları okuyan worker.
-- [ ] **Basit Öğrenme (Heuristic):** Static pathler için (örn: `/api/v1/users`) son başarılı 200 OK cevaplarını saklama.
-- [ ] **Dinamik Parametre Analizi:** URL query parametreleri veya JSON body'ye göre değişen cevapları gruplama (cluster).
-- [ ] **Model Eğitimi (MVP):** Basit bir "Nearest Neighbor" veya kural tabanlı eşleştirme. "Bu request'e en çok şu response benziyor".
-
-### Faz 3: The Ghost (Ölümsüzlük Modu)
-*Hedef: Backend çöktüğünde devreye giren simülasyon.*
-
-- [ ] **Circuit Breaker:** Go tarafında backend %X hata verdiğinde veya timeout olduğunda trafiği kesme.
-- [ ] **Ghost Handover:** Proxy'nin trafiği Python servisine (veya Redis'teki ön-hazırlanmış verilere) yönlendirmesi.
-- [ ] **Semantic Matching:** Gelen isteği analiz edip, en mantıklı "sahte" cevabı üretme.
-- [ ] **Chaos Testing:** Bilerek backend'i kapatıp sistemin davranışını test etme.
-
-### Faz 4: Dashboard & SaaS (Ürünleştirme)
-*Hedef: Kullanıcıya görünürlük sağlama.*
-
-- [ ] **Web UI (React/Next.js):** Canlı trafik akışı.
-- [ ] **Health Monitor:** Backend uptime ve Ghost Mode devreye girme sayıları.
-- [ ] **Traffic Replay:** Geçmiş trafiği tekrar oynatma özelliği.
-- [ ] **Anomaly Detection:** "API'niz normalden yavaş" veya "Garip requestler geliyor" uyarıları.
+## 🏗 Architecture Overview
+The system consists of 3 main components:
+1.  **The Sentinel (Go):** High-performance Reverse Proxy. Handles traffic, logs to Redis, and serves Ghost responses if needed.
+2.  **The Memory (Redis):** Fast cache holding live request/response data and AI models (or rules).
+3.  **The Brain (Python):** Runs in the background. Analyzes data in Redis, learns patterns, and creates "Ghost Response" models.
 
 ---
 
-## 🛠 Teknoloji Yığını (Tech Stack)
+## 🚀 Development Phases
 
-| Bileşen | Teknoloji | Neden? |
+### Phase 1: The Sentinel (Proxy Core & Monitoring)
+*Goal: A working Go Proxy that forwards and logs traffic.*
+
+- [x] **Project Setup:** Go module structure and basic directories.
+- [ ] **Reverse Proxy Core:** Basic proxy logic using `net/http/httputil`.
+- [ ] **Middleware Structure:** Hook points to capture Request/Response bodies.
+- [ ] **Redis Integration:** Logging structure for every operation (Method, Path, Body, Response).
+- [ ] **Health Check:** Mechanism to continuously check if the "real" backend is alive.
+
+### Phase 2: The Brain (Learning Engine)
+*Goal: Python service extracting meaningful data from normal traffic.*
+
+- [ ] **Data Consumer (Python):** Worker reading logs from Redis.
+- [ ] **Basic Learning (Heuristic):** Storing last successful 200 OK responses for static paths (e.g., `/api/v1/users`).
+- [ ] **Dynamic Parameter Analysis:** Clustering responses based on URL query parameters or JSON body.
+- [ ] **Model Training (MVP):** Simple "Nearest Neighbor" or rule-based matching. "This request looks most like this response".
+
+### Phase 3: The Ghost (Immortality Mode)
+*Goal: Simulation activated when Backend fails.*
+
+- [ ] **Circuit Breaker:** Cut traffic on Go side when backend gives %X errors or times out.
+- [ ] **Ghost Handover:** Proxy directs traffic to Python service (or pre-prepared data in Redis).
+- [ ] **Semantic Matching:** Analyzing incoming request to generate the most logical "fake" response.
+- [ ] **Chaos Testing:** Intentionally shutting down backend to test system behavior.
+
+### Phase 4: Dashboard & SaaS (Productization)
+*Goal: Providing visibility to the user.*
+
+- [ ] **Web UI (React/Next.js):** Live traffic flow.
+- [ ] **Health Monitor:** Backend uptime and Ghost Mode activation counts.
+- [ ] **Traffic Replay:** Feature to replay past traffic.
+- [ ] **Anomaly Detection:** Warnings like "Your API is slower than usual" or "Strange requests incoming".
+
+---
+
+## 🛠 Tech Stack
+
+| Component | Technology | Why? |
 | --- | --- | --- |
-| **Proxy Core** | **Go (Golang)** | Yüksek concurrency, düşük latency, `goroutines` ile non-blocking IO. |
-| **Cache/Bus** | **Redis** | Çok hızlı yazma/okuma, Pub/Sub yeteneği (Go -> Python haberleşmesi). |
-| **AI/ML** | **Python (FastAPI + Scikit-learn/PyTorch)** | Zengin ML kütüphaneleri, hızlı prototipleme. |
-| **Database** | **PostgreSQL / TimescaleDB** | Kalıcı log saklama ve zaman serisi (analytics) için. |
-| **Frontend** | **Next.js + Tailwind** | Modern, hızlı dashboard geliştirme. |
+| **Proxy Core** | **Go (Golang)** | High concurrency, low latency, non-blocking IO with `goroutines`. |
+| **Cache/Bus** | **Redis** | Very fast R/W, Pub/Sub capability (Go -> Python communication). |
+| **AI/ML** | **Python (FastAPI + Scikit-learn/PyTorch)** | Rich ML libraries, fast prototyping. |
+| **Database** | **PostgreSQL / TimescaleDB** | Persistent log storage and time-series (analytics). |
+| **Frontend** | **Next.js + Tailwind** | Modern, fast dashboard development. |
 
-## 📅 İlk Adım (MVP)
-Öncelikle **Faz 1**'i tamamlayıp, basit bir Go Proxy'yi ayağa kaldıracağız. Bu proxy, gelen isteği "gerçek" sunucuya iletecek ve dönen cevabı Redis'e yazacak.
+## 📅 First Step (MVP)
+We will first complete **Phase 1** and get a simple Go Proxy up and running. This proxy will forward incoming requests to the "real" server and write the returned response to Redis.
