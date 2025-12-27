@@ -37,3 +37,19 @@ func (c *Client) Close() error {
 func (c *Client) GetRawClient() *redis.Client {
 	return c.rdb
 }
+
+type TrafficLog struct {
+	Timestamp    time.Time `json:"timestamp"`
+	Method       string    `json:"method"`
+	Path         string    `json:"path"`
+	RequestBody  string    `json:"request_body"`
+	Status       int       `json:"status"`
+	ResponseBody string    `json:"response_body"`
+	Duration     string    `json:"duration"`
+}
+
+func (c *Client) PublishTraffic(ctx context.Context, logEntry TrafficLog) error {
+	// For now, we just JSON encode and publish to a channel
+	// In a real high-perf scenario, we might use a worker pool/buffer here
+	return c.rdb.Publish(ctx, "chaos:traffic", logEntry).Err()
+}

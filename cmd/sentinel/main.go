@@ -45,8 +45,10 @@ func main() {
 	})
 
 	// Wrap handler with Middleware Chain
-	// Order: Recovery -> Logger -> Proxy
-	handler := middleware.Chain(proxyHandler, middleware.Logger, middleware.Recovery)
+	// Order: Recovery -> Logger -> TrafficLogger -> Proxy
+	// trafficLogger needs the redisClient
+	trafficMiddleware := middleware.TrafficLogger(redisClient)
+	handler := middleware.Chain(proxyHandler, trafficMiddleware, middleware.Logger, middleware.Recovery)
 
 	// Start the Server
 	log.Printf("👻 Chaos-Proxy Sentinel starting on :%s", cfg.Port)
