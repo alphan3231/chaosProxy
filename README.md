@@ -76,6 +76,34 @@ cp .env.example .env
 docker-compose up -d  # Starts Redis
 ```
 
+### 🐳 Docker (Recommended)
+
+Run the entire stack with one command:
+
+```bash
+# Clone the repo
+git clone https://github.com/elliot/chaosProxy.git
+cd chaosProxy
+
+# Configure
+cp .env.example .env
+# Edit .env with your settings
+
+# Start everything
+docker-compose up -d
+
+# Check status
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+```
+
+Services will be available at:
+- **Proxy:** http://localhost:8080
+- **Dashboard:** http://localhost:3000
+- **Redis:** localhost:6379
+
 ### 3. Run the Proxy
 
 ```bash

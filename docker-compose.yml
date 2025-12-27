@@ -1,14 +1,78 @@
 version: '3.8'
 
 services:
+  # Redis - The Memory
   redis:
-    image: redis:alpine
+    image: redis:7-alpine
     container_name: chaos_redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    restart: always
+    command: redis-server --appendonly yes ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Sentinel - The Proxy (Go)
+  sentinel:
+    build:
+      context: .
+      dockerfile: Dockerfile.sentinel
+    container_name: chaos_sentinel
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - TARGET_URL=${TARGET_URL:-http://httpbin.org}
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - APP_ENV=${APP_ENV:-development}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Brain - The Learner (Python)
+  brain:
+    build:
+      context: .
+      dockerfile: Dockerfile.brain
+    container_name: chaos_brain
+    environment:
+      - REDIS_ADDR=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Dashboard - The UI (Next.js)
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: chaos_dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - DASHBOARD_USER=${DASHBOARD_USER:-admin}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:-chaos123}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   redis_data:
+
+networks:
+  default:
+    name: chaos_network

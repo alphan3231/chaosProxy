@@ -33,3 +33,10 @@ All notable changes to this project will be documented in this file.
 - Implemented Dashboard Basic Authentication.
 - Added CORS configuration and security headers.
 - Created `.env.example` for secure configuration reference.
+
+### 🐳 Docker Support
+- Added `Dockerfile.sentinel` for Go proxy.
+- Added `Dockerfile.brain` for Python learner.
+- Added `Dockerfile.dashboard` for Next.js UI.
+- Updated `docker-compose.yml` to orchestrate all services.
+- Added `.dockerignore` for optimized builds.

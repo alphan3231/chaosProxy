@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+*_test.go
+test_*.py
+tests/
+
+# Documentation
+*.md
+!README.md
+
+# Development files
+.env
+.env.local
+dev_test.sh
+verify_ghost.sh
+sentinel_ghost.log
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Node modules (we install in Docker)
+dashboard/node_modules
+dashboard/.next
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+
+# Logs
+*.log
