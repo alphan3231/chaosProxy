@@ -1,0 +1,23 @@
+# Binaries
+/cmd/sentinel/sentinel
+/bin/
+
+# MacOS
+.DS_Store
+
+# Go
+go.sum
+vendor/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Redis
+dump.rdb
+
+# Local Test Scripts
+dev_test.sh
