@@ -1,0 +1,52 @@
+{
+    "name": "chaos-proxy-cli",
+    "version": "1.0.0",
+    "description": "CLI tool for managing Chaos-Proxy - The Immortality Layer for APIs",
+    "main": "dist/index.js",
+    "bin": {
+        "chaos-proxy": "./dist/index.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "dev": "ts-node src/index.ts",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "chaos-proxy",
+        "reverse-proxy",
+        "api-gateway",
+        "ghost-mode",
+        "resilience",
+        "fault-tolerance",
+        "cli"
+    ],
+    "author": "Elliot",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/elliot/chaosProxy.git"
+    },
+    "homepage": "https://github.com/elliot/chaosProxy#readme",
+    "bugs": {
+        "url": "https://github.com/elliot/chaosProxy/issues"
+    },
+    "dependencies": {
+        "chalk": "^5.3.0",
+        "commander": "^11.1.0",
+        "inquirer": "^9.2.12",
+        "ora": "^8.0.1"
+    },
+    "devDependencies": {
+        "@types/inquirer": "^9.0.7",
+        "@types/node": "^20.10.0",
+        "typescript": "^5.3.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "files": [
+        "dist",
+        "templates"
+    ]
+}
