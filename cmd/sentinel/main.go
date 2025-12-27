@@ -1,0 +1,49 @@
+package main
+
+import (
+	"log"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+
+	"github.com/elliot/chaosProxy/internal/config"
+	"github.com/elliot/chaosProxy/pkg/middleware"
+)
+
+func main() {
+	// Load Configuration
+	cfg := config.LoadConfig()
+
+	// Parse the target URL
+	target, err := url.Parse(cfg.TargetURL)
+	if err != nil {
+		log.Fatalf("Failed to parse target URL: %v", err)
+	}
+
+	// Create the Reverse Proxy
+	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	// Update the Director to set the Host header correctly
+	originalDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		originalDirector(req)
+		req.Host = target.Host // Important: Set the Host header to the target's host
+	}
+
+	// Define the main handler with the proxy
+	proxyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		proxy.ServeHTTP(w, r)
+	})
+
+	// Wrap handler with Middleware Chain
+	// Order: Recovery -> Logger -> Proxy
+	handler := middleware.Chain(proxyHandler, middleware.Logger, middleware.Recovery)
+
+	// Start the Server
+	log.Printf("👻 Chaos-Proxy Sentinel starting on :%s", cfg.Port)
+	log.Printf("🎯 Forwarding to: %s", cfg.TargetURL)
+
+	if err := http.ListenAndServe(":"+cfg.Port, handler); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
+}
