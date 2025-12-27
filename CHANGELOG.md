@@ -18,3 +18,6 @@ All notable changes to this project will be documented in this file.
 - Added `/healthz` endpoint for checking service and Redis status.
 - Key Phase 3: Setup Python environment structure (`brain/`).
 - Implemented basic Redis consumer in `brain/main.py`.
+- Added `brain/learner.py` implementing "Exact Match" learning strategy (caching 200 OK responses to Redis).
+- Implemented **Ghost Mode** recovery logic in Sentinel Proxy (`proxy.ErrorHandler`).
+- Added `verify_ghost.sh` for semantic verification of recovery mode.

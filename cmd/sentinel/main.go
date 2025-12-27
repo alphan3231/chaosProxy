@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -32,6 +33,30 @@ func main() {
 
 	// Create the Reverse Proxy
 	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	// Custom Error Handler for Ghost Mode
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.Printf("🔥 Backend failed: %v. Attempting Ghost Mode...", err)
+
+		// Try to get ghost response
+		ghost, ghostErr := redisClient.GetGhostResponse(r.Context(), r.Method, r.URL.Path)
+		if ghostErr == nil && ghost != nil {
+			log.Printf("👻 Ghost Mode Activated for: %s %s", r.Method, r.URL.Path)
+
+			// Set Ghost Headers
+			w.Header().Set("X-Chaos-Ghost", "true")
+			w.Header().Set("X-Chaos-Original-Status", fmt.Sprintf("%d", ghost.Status))
+			w.Header().Set("Content-Type", "application/json") // Assuming JSON for now
+
+			w.WriteHeader(ghost.Status)
+			w.Write([]byte(ghost.ResponseBody))
+			return
+		}
+
+		log.Printf("💀 Ghost Mode failed (no data found). Returning 502.")
+		w.WriteHeader(http.StatusBadGateway)
+		w.Write([]byte("Backend Unavailable and Ghost Mode failed."))
+	}
 
 	// Update the Director to set the Host header correctly
 	originalDirector := proxy.Director

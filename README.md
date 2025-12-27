@@ -38,9 +38,24 @@ During normal operation, it monitors and learns from traffic (The Sentinel & The
    go run cmd/sentinel/main.go
    ```
 
-## 🗺 Roadmap
+4. **Start The Brain (Learning Module):**
+   ```bash
+   # In a new terminal
+   python3 brain/main.py
+   ```
 
-See [ROADMAP.md](ROADMAP.md) for the detailed development plan.
+## 👻 How It Works
+
+1.  **Learning:** Send requests to the proxy (`Standard Mode`). The usage data is silently logged to Redis.
+2.  **Simulation:** If the backend (e.g., httpbin.org) fails, the Proxy enters `Ghost Mode`.
+3.  **Immortality:** The Proxy checks Redis for a previously "learned" response for that specific method/path and returns it instantly.
+
+## 🧪 Testing
+
+We have included scripts to help you verify the "Immortality":
+
+- `./dev_test.sh`: Generates normal traffic to train the brain.
+- `./verify_ghost.sh`: Simulates a backend failure and checks if `Ghost Mode` activates successfully.
 
 ## 📄 License
 

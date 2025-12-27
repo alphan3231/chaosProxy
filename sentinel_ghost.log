@@ -1,0 +1,6 @@
+2025/12/27 14:14:49 ⚡ Connected to Redis at localhost:6379
+2025/12/27 14:14:49 👻 Chaos-Proxy Sentinel starting on :8081
+2025/12/27 14:14:49 🎯 Forwarding to: http://localhost:9999
+2025/12/27 14:14:52 🔥 Backend failed: dial tcp [::1]:9999: connect: connection refused. Attempting Ghost Mode...
+2025/12/27 14:14:52 👻 Ghost Mode Activated for: GET /get
+2025/12/27 14:14:52 [REQ] GET /get 894.083µs

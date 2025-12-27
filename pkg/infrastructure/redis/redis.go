@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -52,4 +53,18 @@ func (c *Client) PublishTraffic(ctx context.Context, logEntry TrafficLog) error 
 	// For now, we just JSON encode and publish to a channel
 	// In a real high-perf scenario, we might use a worker pool/buffer here
 	return c.rdb.Publish(ctx, "chaos:traffic", logEntry).Err()
+}
+
+func (c *Client) GetGhostResponse(ctx context.Context, method, path string) (*TrafficLog, error) {
+	key := fmt.Sprintf("chaos:ghost:%s:%s", method, path)
+	data, err := c.rdb.Get(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	var logEntry TrafficLog
+	if err := json.Unmarshal([]byte(data), &logEntry); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal ghost response: %w", err)
+	}
+	return &logEntry, nil
 }

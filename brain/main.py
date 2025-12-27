@@ -3,6 +3,7 @@ import json
 import redis
 import logging
 from dotenv import load_dotenv
+from learner import Learner
 
 # Load environment variables
 load_dotenv()
@@ -25,6 +26,8 @@ def main():
     
     try:
         r = redis.Redis(host=REDIS_ADDR, port=REDIS_PORT, decode_responses=True)
+        learner = Learner(r)
+
         pubsub = r.pubsub()
         pubsub.subscribe(CHANNEL)
         
@@ -35,7 +38,7 @@ def main():
             if message['type'] == 'message':
                 try:
                     data = json.loads(message['data'])
-                    process_traffic(data)
+                    learner.learn(data)
                 except json.JSONDecodeError:
                     logger.error("Failed to decode JSON message")
                 except Exception as e:
@@ -45,16 +48,6 @@ def main():
         logger.error("Could not connect to Redis. Is it running?")
     except KeyboardInterrupt:
         logger.info("Shutting down...")
-
-def process_traffic(data):
-    """
-    Placeholder for the AI logic.
-    For now, just acknowledge we saw the traffic.
-    """
-    method = data.get('method')
-    path = data.get('path')
-    status = data.get('status')
-    logger.info(f"Captured: {method} {path} -> {status}")
 
 if __name__ == "__main__":
     main()
