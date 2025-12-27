@@ -1,69 +1,191 @@
 # 👻 Chaos-Proxy
 
-**Immortality Layer for APIs**
+[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org)
+[![Python Version](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-Chaos-Proxy is a smart Reverse Proxy designed for microservice and API architectures. It ensures continuous service availability to clients even when backend services fail.
+**Immortality Layer for APIs** — Your backend can crash, but your users won't notice.
 
-During normal operation, it monitors and learns from traffic (The Sentinel & The Brain). When the backend crashes, "Ghost Mode" activates, generating realistic responses based on learned data.
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-MVP%20Ready-success" alt="Status">
+</p>
 
-## 🚀 Features
+---
 
-- **🪟 Sentinel Proxy (Go):** High-performance, low-latency reverse proxy.
-- **🧠 The Brain (Python + AI):** Traffic analysis and response modeling.
-- **👻 Ghost Mode:** Smart simulation that automatically activates during backend outages.
-- **⚡ Redis Backed:** Fast data access and cache management.
+## 🎯 What is Chaos-Proxy?
 
-## 🛠 Installation
+Chaos-Proxy is a smart **Reverse Proxy** that sits between your clients and backend services. During normal operation, it silently learns your API's behavior patterns. When your backend fails, it seamlessly switches to **Ghost Mode** — serving realistic cached responses as if nothing happened.
 
-### Requirements
+```
+┌─────────┐      ┌─────────────────┐      ┌─────────┐
+│ Client  │ ───▶ │  Chaos-Proxy    │ ───▶ │ Backend │
+└─────────┘      │  (The Sentinel) │      └─────────┘
+                 │       │         │           │
+                 │   Learning      │           │
+                 │       ▼         │           │
+                 │  ┌─────────┐    │           │
+                 │  │  Redis  │◀───┼───────────┘
+                 │  └─────────┘    │     (Logs)
+                 │       │         │
+                 │       ▼         │
+                 │  ┌─────────┐    │
+                 │  │  Brain  │    │  (Python ML)
+                 │  └─────────┘    │
+                 └─────────────────┘
+                         │
+                   Backend Down?
+                         │
+                         ▼
+                   👻 Ghost Mode!
+                   (Serve from cache)
+```
+
+## ✨ Features
+
+- **🛡️ Sentinel Proxy (Go)** — High-performance reverse proxy with middleware support
+- **🧠 The Brain (Python)** — Traffic analysis and pattern learning
+- **👻 Ghost Mode** — Automatic failover with cached responses
+- **📊 Real-time Dashboard** — Monitor traffic, ghost activations, and system health
+- **🔒 Security First** — Rate limiting, auth, sensitive data filtering
+- **⚡ Redis-powered** — Fast caching and pub/sub messaging
+
+## 🚀 Quick Start
+
+### Prerequisites
+
 - Go 1.21+
 - Python 3.10+
 - Docker & Docker Compose
+- Node.js 18+ (for Dashboard)
 
-### Quick Start
+### 1. Clone & Setup
 
-1. **Clone the repo:**
-   ```bash
-   git clone https://github.com/elliot/chaosProxy.git
-   cd chaosProxy
-   ```
+```bash
+git clone https://github.com/elliot/chaosProxy.git
+cd chaosProxy
 
-2. **Start the infrastructure (Redis):**
-   ```bash
-   docker-compose up -d
-   ```
+# Copy environment template
+cp .env.example .env
+# Edit .env with your configuration
+```
 
-3. **Run the Proxy:**
-   ```bash
-   go run cmd/sentinel/main.go
-   ```
+### 2. Start Infrastructure
 
-4. **Start The Brain (Learning Module):**
-   ```bash
-   # In a new terminal
-   python3 brain/main.py
-   ```
+```bash
+docker-compose up -d  # Starts Redis
+```
 
-5. **Start the Dashboard:**
-   ```bash
-   cd dashboard
-   npm run dev
-   # Open http://localhost:3000
-   ```
+### 3. Run the Proxy
 
-## 👻 How It Works
+```bash
+go run cmd/sentinel/main.go
+```
 
-1.  **Learning:** Send requests to the proxy (`Standard Mode`). The usage data is silently logged to Redis.
-2.  **Simulation:** If the backend (e.g., httpbin.org) fails, the Proxy enters `Ghost Mode`.
-3.  **Immortality:** The Proxy checks Redis for a previously "learned" response for that specific method/path and returns it instantly.
+### 4. Start the Brain (Learning Module)
 
-## 🧪 Testing
+```bash
+cd brain
+pip install -r requirements.txt  # Use virtualenv recommended
+python main.py
+```
 
-We have included scripts to help you verify the "Immortality":
+### 5. Launch Dashboard
 
-- `./dev_test.sh`: Generates normal traffic to train the brain.
-- `./verify_ghost.sh`: Simulates a backend failure and checks if `Ghost Mode` activates successfully.
+```bash
+cd dashboard
+npm install
+npm run dev
+# Open http://localhost:3000
+```
+
+### 6. Generate Traffic
+
+```bash
+./dev_test.sh  # Sends sample requests through the proxy
+```
+
+## 🧪 Testing Ghost Mode
+
+```bash
+# This script simulates a backend failure and verifies ghost mode activation
+./verify_ghost.sh
+```
+
+## 📁 Project Structure
+
+```
+chaosProxy/
+├── cmd/
+│   └── sentinel/         # Main proxy entry point
+├── internal/
+│   ├── config/           # Configuration management
+│   └── handlers/         # HTTP handlers (health check)
+├── pkg/
+│   ├── infrastructure/
+│   │   └── redis/        # Redis client wrapper
+│   └── middleware/       # Proxy middlewares (logging, rate-limit, traffic)
+├── brain/                # Python learning module
+│   ├── main.py           # Redis consumer
+│   └── learner.py        # Learning logic
+├── dashboard/            # Next.js monitoring UI
+├── docker-compose.yml    # Redis infrastructure
+└── .env.example          # Environment template
+```
+
+## ⚙️ Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Proxy listen port | `8080` |
+| `TARGET_URL` | Backend service URL | `http://httpbin.org` |
+| `REDIS_ADDR` | Redis connection address | `localhost:6379` |
+| `REDIS_PASSWORD` | Redis password | _(empty)_ |
+| `APP_ENV` | Environment mode | `development` |
+| `DASHBOARD_USER` | Dashboard auth username | `admin` |
+| `DASHBOARD_PASSWORD` | Dashboard auth password | `chaos123` |
+
+## 🔒 Security Features
+
+- ✅ Redis password authentication
+- ✅ Request body size limiting (DoS protection)
+- ✅ Sensitive header filtering
+- ✅ Body content sanitization
+- ✅ Rate limiting (100 req/min per IP)
+- ✅ Dashboard Basic Authentication
+- ✅ CORS & security headers
+
+## 🗺️ Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for the detailed development plan.
+
+- [x] Phase 1: Project Setup
+- [x] Phase 2: Sentinel Proxy Core
+- [x] Phase 3: The Brain (Learning)
+- [x] Phase 4: Ghost Mode
+- [x] Phase 5: Dashboard
+- [x] Security Hardening
+- [ ] Phase 6: Dockerization
+- [ ] Phase 7: Cloud Deployment (AWS/GCP)
+- [ ] Phase 8: Advanced ML Models
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 📄 License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 💡 Use Cases
+
+- **Staging/Demo Environments** — Never show errors to stakeholders
+- **Chaos Engineering** — Test your frontend's resilience
+- **API Mocking** — Generate realistic mock responses from real traffic
+- **Graceful Degradation** — Serve cached data when services are down
+
+---
+
+<p align="center">
+  Made with 👻 by <a href="https://github.com/elliot">elliot</a>
+</p>
