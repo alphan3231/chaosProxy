@@ -22,6 +22,9 @@ class Learner:
         if status and 200 <= status < 300:
             self._save_ghost_response(method, path, traffic_data)
 
+        # Update Stats
+        self.redis.incr("chaos:stats:request_count")
+
     def _save_ghost_response(self, method, path, data):
         key = f"chaos:ghost:{method}:{path}"
         

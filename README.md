@@ -44,6 +44,13 @@ During normal operation, it monitors and learns from traffic (The Sentinel & The
    python3 brain/main.py
    ```
 
+5. **Start the Dashboard:**
+   ```bash
+   cd dashboard
+   npm run dev
+   # Open http://localhost:3000
+   ```
+
 ## 👻 How It Works
 
 1.  **Learning:** Send requests to the proxy (`Standard Mode`). The usage data is silently logged to Redis.

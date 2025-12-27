@@ -21,3 +21,6 @@ All notable changes to this project will be documented in this file.
 - Added `brain/learner.py` implementing "Exact Match" learning strategy (caching 200 OK responses to Redis).
 - Implemented **Ghost Mode** recovery logic in Sentinel Proxy (`proxy.ErrorHandler`).
 - Added `verify_ghost.sh` for semantic verification of recovery mode.
+- **Phase 5:** Initialized `dashboard` (Next.js 14) for real-time monitoring.
+- Added Redis Stats tracking (`request_count`, `ghost_count`) to Brain and Proxy.
+- Added `verify_ghost.sh` for semantic verification of recovery mode.

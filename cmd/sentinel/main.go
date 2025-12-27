@@ -43,6 +43,9 @@ func main() {
 		if ghostErr == nil && ghost != nil {
 			log.Printf("👻 Ghost Mode Activated for: %s %s", r.Method, r.URL.Path)
 
+			// Increment Stats
+			redisClient.GetRawClient().Incr(r.Context(), "chaos:stats:ghost_count")
+
 			// Set Ghost Headers
 			w.Header().Set("X-Chaos-Ghost", "true")
 			w.Header().Set("X-Chaos-Original-Status", fmt.Sprintf("%d", ghost.Status))
