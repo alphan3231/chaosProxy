@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/elliot/chaosProxy/internal/config"
+	"github.com/elliot/chaosProxy/internal/handlers"
 	"github.com/elliot/chaosProxy/pkg/infrastructure/redis"
 	"github.com/elliot/chaosProxy/pkg/middleware"
 )
@@ -44,11 +45,19 @@ func main() {
 		proxy.ServeHTTP(w, r)
 	})
 
+	// Setup Router (Mux) to handle specific paths
+	mux := http.NewServeMux()
+
+	// Register Health Check
+	mux.HandleFunc("/healthz", handlers.HealthCheck(redisClient))
+
+	// Catch-all to Proxy
+	mux.Handle("/", proxyHandler)
+
 	// Wrap handler with Middleware Chain
-	// Order: Recovery -> Logger -> TrafficLogger -> Proxy
-	// trafficLogger needs the redisClient
+	// Order: Recovery -> Logger -> TrafficLogger -> Mux
 	trafficMiddleware := middleware.TrafficLogger(redisClient)
-	handler := middleware.Chain(proxyHandler, trafficMiddleware, middleware.Logger, middleware.Recovery)
+	handler := middleware.Chain(mux, trafficMiddleware, middleware.Logger, middleware.Recovery)
 
 	// Start the Server
 	log.Printf("👻 Chaos-Proxy Sentinel starting on :%s", cfg.Port)
