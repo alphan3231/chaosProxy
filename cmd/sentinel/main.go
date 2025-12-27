@@ -7,12 +7,21 @@ import (
 	"net/url"
 
 	"github.com/elliot/chaosProxy/internal/config"
+	"github.com/elliot/chaosProxy/pkg/infrastructure/redis"
 	"github.com/elliot/chaosProxy/pkg/middleware"
 )
 
 func main() {
 	// Load Configuration
 	cfg := config.LoadConfig()
+
+	// Initialize Redis
+	redisClient, err := redis.NewClient(cfg.RedisAddr)
+	if err != nil {
+		log.Fatalf("Failed to initialize Redis: %v", err)
+	}
+	defer redisClient.Close()
+	log.Printf("⚡ Connected to Redis at %s", cfg.RedisAddr)
 
 	// Parse the target URL
 	target, err := url.Parse(cfg.TargetURL)

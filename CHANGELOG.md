@@ -9,3 +9,7 @@ All notable changes to this project will be documented in this file.
 - Initialized Go module: `github.com/elliot/chaosProxy`.
 - Added `docker-compose.yml` for Redis infrastructure.
 - Documented project vision and plan in `ROADMAP.md`.
+- Implemented basic Reverse Proxy core using `httputil`.
+- Added `internal/config` for environment variable management.
+- Implemented Middleware pattern with `Logger` and `Recovery`.
+- Integrated `go-redis/v9` client in `pkg/infrastructure/redis`.
