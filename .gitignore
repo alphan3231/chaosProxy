@@ -21,3 +21,5 @@ dump.rdb
 
 # Local Test Scripts
 dev_test.sh
+verify_ghost.sh
+
