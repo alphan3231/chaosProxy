@@ -3,7 +3,12 @@ Tests for the Brain Learner module
 """
 import unittest
 import json
+import sys
 from unittest.mock import MagicMock, patch
+
+# Mock redis module before importing learner
+mock_redis_module = MagicMock()
+sys.modules['redis'] = mock_redis_module
 
 
 class TestLearner(unittest.TestCase):
