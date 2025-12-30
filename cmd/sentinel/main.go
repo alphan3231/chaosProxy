@@ -84,10 +84,11 @@ func main() {
 	mux.Handle("/", proxyHandler)
 
 	// Wrap handler with Middleware Chain
-	// Order: Recovery -> RateLimit -> Logger -> TrafficLogger -> Mux
+	// Order: Recovery -> RateLimit -> Chaos -> Logger -> TrafficLogger -> Mux
 	rateLimiter := middleware.NewRateLimiter(100, time.Minute) // 100 requests per minute per IP
+	chaosMiddleware := middleware.NewChaosMiddleware(redisClient)
 	trafficMiddleware := middleware.TrafficLogger(redisClient)
-	handler := middleware.Chain(mux, trafficMiddleware, middleware.Logger, middleware.RateLimit(rateLimiter), middleware.Recovery)
+	handler := middleware.Chain(mux, trafficMiddleware, middleware.Logger, chaosMiddleware.Chaos, middleware.RateLimit(rateLimiter), middleware.Recovery)
 
 	// Start the Server
 	log.Printf("👻 Chaos-Proxy Sentinel starting on :%s", cfg.Port)

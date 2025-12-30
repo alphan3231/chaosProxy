@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Activity, Ghost, Server, ShieldAlert } from 'lucide-react';
+import { Activity, Ghost, Server, ShieldAlert, Globe, Zap, Skull } from 'lucide-react';
+import ChaosControl from './components/ChaosControl';
 
 interface Stats {
   totalRequests: number;
@@ -91,6 +92,24 @@ export default function Home() {
             <h3 className="text-xl font-semibold mb-4 text-neutral-200">Recent Events</h3>
             <div className="space-y-3">
               <div className="text-sm text-neutral-500 italic">No recent anomalies detected...</div>
+            </div>
+          </div>
+
+          <div className="md:col-span-2 p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 backdrop-blur-sm">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Globe className="text-blue-400" />
+              Wait.. Is this safe?
+            </h2>
+            <div className="bg-[#111] p-4 rounded-lg border border-gray-800 text-gray-400 text-sm">
+              <p>
+                Chaos-Proxy acts as an <strong>Immortality Layer</strong>. Even if your backend fails,
+                users will perceive a working service thanks to Ghost Mode.
+                <br /><br />
+                The stats above show real-time traffic interception and recovery actions.
+              </p>
+            </div>
+            <div className="mt-6">
+              <ChaosControl />
             </div>
           </div>
         </div>

@@ -40,3 +40,9 @@ All notable changes to this project will be documented in this file.
 - Added `Dockerfile.dashboard` for Next.js UI.
 - Updated `docker-compose.yml` to orchestrate all services.
 - Added `.dockerignore` for optimized builds.
+
+### 🎲 Phase 6: Chaos Mode (Fault Injection)
+- Implemented `ChaosMiddleware` in Go for random latency and failure injection.
+- Added Redis-based runtime configuration for chaos settings.
+- Created `/api/chaos` endpoint in Dashboard.
+- Added **Chaos Control Panel** to Dashboard UI for enabling/disabling chaos experiments.

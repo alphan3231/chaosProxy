@@ -55,6 +55,7 @@ func (c *Client) PublishTraffic(ctx context.Context, logEntry TrafficLog) error 
 	return c.rdb.Publish(ctx, "chaos:traffic", logEntry).Err()
 }
 
+// GetGhostResponse attempts to fetch a cached response for the given method and path
 func (c *Client) GetGhostResponse(ctx context.Context, method, path string) (*TrafficLog, error) {
 	key := fmt.Sprintf("chaos:ghost:%s:%s", method, path)
 	data, err := c.rdb.Get(ctx, key).Result()
@@ -67,4 +68,32 @@ func (c *Client) GetGhostResponse(ctx context.Context, method, path string) (*Tr
 		return nil, fmt.Errorf("failed to unmarshal ghost response: %w", err)
 	}
 	return &logEntry, nil
+}
+
+type ChaosSettings struct {
+	LatencyEnabled bool `json:"latency_enabled"`
+	LatencyMin     int  `json:"latency_min"`
+	LatencyMax     int  `json:"latency_max"`
+	FailureEnabled bool `json:"failure_enabled"`
+	FailureRate    int  `json:"failure_rate"`
+}
+
+func (c *Client) GetChaosSettings(ctx context.Context) (*ChaosSettings, error) {
+	val, err := c.rdb.HGetAll(ctx, "chaos:settings").Result()
+	if err != nil {
+		return nil, err
+	}
+
+	// Default values if empty
+	settings := &ChaosSettings{
+		LatencyEnabled: val["latency_enabled"] == "true",
+		FailureEnabled: val["failure_enabled"] == "true",
+	}
+
+	// Parse ints
+	fmt.Sscanf(val["latency_min"], "%d", &settings.LatencyMin)
+	fmt.Sscanf(val["latency_max"], "%d", &settings.LatencyMax)
+	fmt.Sscanf(val["failure_rate"], "%d", &settings.FailureRate)
+
+	return settings, nil
 }
