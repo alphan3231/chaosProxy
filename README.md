@@ -17,28 +17,25 @@
 
 Chaos-Proxy is a smart **Reverse Proxy** that sits between your clients and backend services. During normal operation, it silently learns your API's behavior patterns. When your backend fails, it seamlessly switches to **Ghost Mode** — serving realistic cached responses as if nothing happened.
 
-```
-┌─────────┐      ┌─────────────────┐      ┌─────────┐
-│ Client  │ ───▶ │  Chaos-Proxy    │ ───▶ │ Backend │
-└─────────┘      │  (The Sentinel) │      └─────────┘
-                 │       │         │           │
-                 │   Learning      │           │
-                 │       ▼         │           │
-                 │  ┌─────────┐    │           │
-                 │  │  Redis  │◀───┼───────────┘
-                 │  └─────────┘    │     (Logs)
-                 │       │         │
-                 │       ▼         │
-                 │  ┌─────────┐    │
-                 │  │  Brain  │    │  (Python ML)
-                 │  └─────────┘    │
-                 └─────────────────┘
-                         │
-                   Backend Down?
-                         │
-                         ▼
-                   👻 Ghost Mode!
-                   (Serve from cache)
+```mermaid
+graph TD
+    Client[Client] -->|Traffic| Sentinel[Chaos-Proxy Sentinel]
+    Sentinel -->|Forward| Backend[Backend Service]
+    
+    subgraph "The Immortality Layer"
+        Sentinel -->|Log Traffic| Redis[(Redis)]
+        Sentinel -->|Check Blocklist| Redis
+        Sentinel -->|Get Chaos Settings| Redis
+        Sentinel -->|Get Ghost Response| Redis
+        
+        Brain[The Brain (Python ML)] -->|Learn Patterns| Redis
+        Brain -->|Update Ghost Cache| Redis
+        
+        Dashboard[Dashboard (Next.js)] -->|Monitor & Control| Redis
+    end
+    
+    Backend -.->|Failure (50x)| Sentinel
+    Sentinel -.->|Ghost Mode Activated| Client
 ```
 
 ## ✨ Features
@@ -46,6 +43,8 @@ Chaos-Proxy is a smart **Reverse Proxy** that sits between your clients and back
 - **🛡️ Sentinel Proxy (Go)** — High-performance reverse proxy with middleware support
 - **🧠 The Brain (Python)** — Traffic analysis and pattern learning
 - **👻 Ghost Mode** — Automatic failover with cached responses
+- **😈 Chaos Mode** — Inject artificial latency and failures to test resilience
+- **🚫 IP Blocking** — Real-time IP filtering and access control
 - **📊 Real-time Dashboard** — Monitor traffic, ghost activations, and system health
 - **🔒 Security First** — Rate limiting, auth, sensitive data filtering
 - **⚡ Redis-powered** — Fast caching and pub/sub messaging
@@ -133,6 +132,24 @@ npm run dev
 ./dev_test.sh  # Sends sample requests through the proxy
 ```
 
+## 🛠 CLI Reference
+
+Managing Chaos-Proxy is easy with the included CLI tool:
+
+```bash
+# View logs
+chaos-proxy logs -f
+
+# Block an IP
+chaos-proxy block 192.168.1.5
+
+# List blocked IPs
+chaos-proxy ls-blocked
+
+# Unblock an IP
+chaos-proxy unblock 192.168.1.5
+```
+
 ## 🧪 Testing Ghost Mode
 
 ```bash
@@ -193,9 +210,10 @@ See [ROADMAP.md](ROADMAP.md) for the detailed development plan.
 - [x] Phase 4: Ghost Mode
 - [x] Phase 5: Dashboard
 - [x] Security Hardening
-- [ ] Phase 6: Dockerization
-- [ ] Phase 7: Cloud Deployment (AWS/GCP)
-- [ ] Phase 8: Advanced ML Models
+- [x] Phase 6: Chaos Mode (Fault Injection)
+- [x] Phase 7: Polish & Refinement (CLI Logs, Refactoring)
+- [x] Phase 8: Security Access Control (IP Filtering)
+- [ ] Phase 9: Cloud Deployment (AWS/GCP)
 
 ## 🤝 Contributing
 

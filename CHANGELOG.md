@@ -45,4 +45,16 @@ All notable changes to this project will be documented in this file.
 - Implemented `ChaosMiddleware` in Go for random latency and failure injection.
 - Added Redis-based runtime configuration for chaos settings.
 - Created `/api/chaos` endpoint in Dashboard.
+- Created `/api/chaos` endpoint in Dashboard.
 - Added **Chaos Control Panel** to Dashboard UI for enabling/disabling chaos experiments.
+
+### ✨ Phase 7: Polish & Refinement
+- Refactored Sentinel `main.go` into `internal/server` package.
+- Added **Recent Requests** table to Dashboard (visualizes last 20 requests).
+- Added `logs` command to CLI for easier debugging.
+
+### 🛡 Phase 8: Security Access Control
+- Implemented **IP Filtering Middleware** in Go.
+- Added `block`, `unblock`, and `ls-blocked` commands to CLI.
+- Integrated Redis Set `chaos:settings:blocked_ips` for blocklist management.
+
