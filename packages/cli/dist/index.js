@@ -9,6 +9,7 @@ const chalk_1 = __importDefault(require("chalk"));
 const init_js_1 = require("./commands/init.js");
 const status_js_1 = require("./commands/status.js");
 const start_js_1 = require("./commands/start.js");
+const logs_js_1 = require("./commands/logs.js");
 const program = new commander_1.Command();
 console.log(chalk_1.default.magenta(`
    _____ _                        _____                     
@@ -39,5 +40,11 @@ program
     .description('Start Chaos-Proxy services')
     .option('--docker', 'Start using Docker Compose', false)
     .action(start_js_1.start);
+program
+    .command('logs')
+    .description('View service logs (Docker only)')
+    .option('-s, --service <name>', 'Filter by service (sentinel, brain, dashboard, redis)')
+    .option('-f, --follow', 'Follow log output', true)
+    .action(logs_js_1.logs);
 program.parse();
 //# sourceMappingURL=index.js.map

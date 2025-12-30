@@ -43,6 +43,7 @@ chaos-proxy start
 | `init` | Initialize a new Chaos-Proxy project |
 | `status` | Check the status of Chaos-Proxy services |
 | `start` | Start Chaos-Proxy services |
+| `logs` | View service logs (Docker only) |
 
 ## Options
 
@@ -54,6 +55,10 @@ chaos-proxy start
 
 ### start
 - `--docker` - Start using Docker Compose
+
+### logs
+- `-s, --service <name>` - Filter by service (sentinel, brain, dashboard, redis)
+- `-f, --follow` - Follow log output (default: true)
 
 ## License
 

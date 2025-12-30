@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import { init } from './commands/init.js';
 import { status } from './commands/status.js';
 import { start } from './commands/start.js';
+import { logs } from './commands/logs.js';
 
 const program = new Command();
 
@@ -41,5 +42,12 @@ program
     .description('Start Chaos-Proxy services')
     .option('--docker', 'Start using Docker Compose', false)
     .action(start);
+
+program
+    .command('logs')
+    .description('View service logs (Docker only)')
+    .option('-s, --service <name>', 'Filter by service (sentinel, brain, dashboard, redis)')
+    .option('-f, --follow', 'Follow log output', true)
+    .action(logs);
 
 program.parse();
