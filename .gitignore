@@ -23,3 +23,7 @@ dump.rdb
 dev_test.sh
 verify_ghost.sh
 
+# Node modules
+node_modules
+packages/cli/node_modules
+
