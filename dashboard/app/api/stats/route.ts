@@ -10,10 +10,15 @@ export async function GET() {
             redis.get('chaos:stats:ghost_count'),
         ]);
 
+        // Fetch recent logs
+        const recentLogsRaw = await redis.lrange('chaos:logs:recent', 0, 19); // Get last 20
+        const recentLogs = recentLogsRaw.map(log => JSON.parse(log));
+
         return NextResponse.json({
             totalRequests: parseInt(totalRequests || '0'),
             ghostCount: parseInt(ghostCount || '0'),
-            status: 'active', // Should be checked properly in real scenario
+            status: 'active',
+            recentLogs
         });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });

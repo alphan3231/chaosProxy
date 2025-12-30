@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Activity, Ghost, Server, ShieldAlert, Globe, Zap, Skull } from 'lucide-react';
 import ChaosControl from './components/ChaosControl';
+import RecentRequests from './components/RecentRequests';
 
 interface Stats {
   totalRequests: number;
   ghostCount: number;
   status: string;
+  recentLogs: any[];
 }
 
 export default function Home() {
@@ -89,10 +91,8 @@ export default function Home() {
           </div>
 
           <div className="p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 backdrop-blur-sm">
-            <h3 className="text-xl font-semibold mb-4 text-neutral-200">Recent Events</h3>
-            <div className="space-y-3">
-              <div className="text-sm text-neutral-500 italic">No recent anomalies detected...</div>
-            </div>
+            <h3 className="text-xl font-semibold mb-4 text-neutral-200">Recent Traffic</h3>
+            <RecentRequests logs={stats.recentLogs} />
           </div>
 
           <div className="md:col-span-2 p-6 rounded-xl bg-neutral-900/50 border border-neutral-800 backdrop-blur-sm">

@@ -50,9 +50,38 @@ type TrafficLog struct {
 }
 
 func (c *Client) PublishTraffic(ctx context.Context, logEntry TrafficLog) error {
-	// For now, we just JSON encode and publish to a channel
-	// In a real high-perf scenario, we might use a worker pool/buffer here
-	return c.rdb.Publish(ctx, "chaos:traffic", logEntry).Err()
+	// 1. Publish to channel for Brain
+	if err := c.rdb.Publish(ctx, "chaos:traffic", logEntry).Err(); err != nil {
+		return err
+	}
+
+	// 2. Store in Recent Logs List (capped at 50)
+	data, err := json.Marshal(logEntry)
+	if err != nil {
+		return err
+	}
+
+	pipe := c.rdb.Pipeline()
+	pipe.LPush(ctx, "chaos:logs:recent", data)
+	pipe.LTrim(ctx, "chaos:logs:recent", 0, 49) // Keep last 50
+	_, err = pipe.Exec(ctx)
+	return err
+}
+
+func (c *Client) GetRecentLogs(ctx context.Context) ([]TrafficLog, error) {
+	data, err := c.rdb.LRange(ctx, "chaos:logs:recent", 0, -1).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	var logs []TrafficLog
+	for _, raw := range data {
+		var l TrafficLog
+		if err := json.Unmarshal([]byte(raw), &l); err == nil {
+			logs = append(logs, l)
+		}
+	}
+	return logs, nil
 }
 
 // GetGhostResponse attempts to fetch a cached response for the given method and path
