@@ -92,7 +92,7 @@ func (s *Server) setupProxy(proxy *httputil.ReverseProxy, target *url.URL) {
 }
 
 func (s *Server) setupMiddleware(handler http.Handler) http.Handler {
-	// Order: Recovery -> RateLimit -> Chaos -> Logger -> TrafficLogger -> Mux
+	// Order: Recovery -> RateLimit -> IPFilter -> Chaos -> Logger -> TrafficLogger -> Mux
 	rateLimiter := middleware.NewRateLimiter(100, time.Minute) // 100 requests per minute per IP
 	chaosMiddleware := middleware.NewChaosMiddleware(s.redisClient)
 	trafficMiddleware := middleware.TrafficLogger(s.redisClient)
@@ -102,6 +102,7 @@ func (s *Server) setupMiddleware(handler http.Handler) http.Handler {
 		trafficMiddleware,
 		middleware.Logger,
 		chaosMiddleware.Chaos,
+		middleware.IPFilter(s.redisClient),
 		middleware.RateLimit(rateLimiter),
 		middleware.Recovery,
 	)
