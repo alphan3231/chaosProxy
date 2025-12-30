@@ -6,6 +6,7 @@ import { init } from './commands/init.js';
 import { status } from './commands/status.js';
 import { start } from './commands/start.js';
 import { logs } from './commands/logs.js';
+import { block, unblock, listBlocked } from './commands/block.js';
 
 const program = new Command();
 
@@ -49,5 +50,25 @@ program
     .option('-s, --service <name>', 'Filter by service (sentinel, brain, dashboard, redis)')
     .option('-f, --follow', 'Follow log output', true)
     .action(logs);
+
+program
+    .command('block')
+    .description('Block an IP address')
+    .argument('<ip>', 'IP address to block')
+    .option('-r, --redis <url>', 'Redis connection URL', 'redis://localhost:6379')
+    .action(block);
+
+program
+    .command('unblock')
+    .description('Unblock an IP address')
+    .argument('<ip>', 'IP address to unblock')
+    .option('-r, --redis <url>', 'Redis connection URL', 'redis://localhost:6379')
+    .action(unblock);
+
+program
+    .command('ls-blocked')
+    .description('List all blocked IP addresses')
+    .option('-r, --redis <url>', 'Redis connection URL', 'redis://localhost:6379')
+    .action(listBlocked);
 
 program.parse();

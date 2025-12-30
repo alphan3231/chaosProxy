@@ -10,6 +10,7 @@ const init_js_1 = require("./commands/init.js");
 const status_js_1 = require("./commands/status.js");
 const start_js_1 = require("./commands/start.js");
 const logs_js_1 = require("./commands/logs.js");
+const block_js_1 = require("./commands/block.js");
 const program = new commander_1.Command();
 console.log(chalk_1.default.magenta(`
    _____ _                        _____                     
@@ -46,5 +47,22 @@ program
     .option('-s, --service <name>', 'Filter by service (sentinel, brain, dashboard, redis)')
     .option('-f, --follow', 'Follow log output', true)
     .action(logs_js_1.logs);
+program
+    .command('block')
+    .description('Block an IP address')
+    .argument('<ip>', 'IP address to block')
+    .option('-r, --redis <url>', 'Redis connection URL', 'redis://localhost:6379')
+    .action(block_js_1.block);
+program
+    .command('unblock')
+    .description('Unblock an IP address')
+    .argument('<ip>', 'IP address to unblock')
+    .option('-r, --redis <url>', 'Redis connection URL', 'redis://localhost:6379')
+    .action(block_js_1.unblock);
+program
+    .command('ls-blocked')
+    .description('List all blocked IP addresses')
+    .option('-r, --redis <url>', 'Redis connection URL', 'redis://localhost:6379')
+    .action(block_js_1.listBlocked);
 program.parse();
 //# sourceMappingURL=index.js.map

@@ -44,6 +44,9 @@ chaos-proxy start
 | `status` | Check the status of Chaos-Proxy services |
 | `start` | Start Chaos-Proxy services |
 | `logs` | View service logs (Docker only) |
+| `block` | Block an IP address |
+| `unblock` | Unblock an IP address |
+| `ls-blocked` | List all blocked IP addresses |
 
 ## Options
 
@@ -59,6 +62,9 @@ chaos-proxy start
 ### logs
 - `-s, --service <name>` - Filter by service (sentinel, brain, dashboard, redis)
 - `-f, --follow` - Follow log output (default: true)
+
+### block / unblock / ls-blocked
+- `-r, --redis <url>` - Redis connection URL (default: `redis://localhost:6379`)
 
 ## License
 

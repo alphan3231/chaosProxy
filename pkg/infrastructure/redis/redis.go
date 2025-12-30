@@ -124,6 +124,9 @@ func (c *Client) GetChaosSettings(ctx context.Context) (*ChaosSettings, error) {
 	fmt.Sscanf(val["latency_max"], "%d", &settings.LatencyMax)
 	fmt.Sscanf(val["failure_rate"], "%d", &settings.FailureRate)
 
+	return settings, nil
+}
+
 // IsIPBlocked checks if an IP is in the blocklist
 func (c *Client) IsIPBlocked(ctx context.Context, ip string) (bool, error) {
 	return c.rdb.SIsMember(ctx, "chaos:settings:blocked_ips", ip).Result()
