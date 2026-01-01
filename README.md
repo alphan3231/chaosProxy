@@ -13,9 +13,31 @@
 
 ---
 
-## 🎯 What is Chaos-Proxy?
 
-Chaos-Proxy is a smart **Reverse Proxy** that sits between your clients and backend services. During normal operation, it silently learns your API's behavior patterns. When your backend fails, it seamlessly switches to **Ghost Mode** — serving realistic cached responses as if nothing happened.
+---
+
+## 🏗 Architecture Overview
+
+```mermaid
+graph TD
+    Client[Client / User] -->|HTTP Requests| Sentinel[Sentinel (Go Proxy)]
+    Sentinel -->|Log Traffic| Redis[(Redis Cache)]
+    Sentinel -->|Forward| Backend[Real Backend]
+    
+    Backend -->|Response| Sentinel
+    Sentinel -->|Response| Client
+    
+    subgraph "Ghost Mode"
+    Backend -.->|Failure| Sentinel
+    Sentinel -.->|Fetch Ghost Response| Redis
+    Redis -.->|Ghost Response| Sentinel
+    end
+    
+    Redis -->|Traffic Data| Brain[Brain (Python AI)]
+    Brain -->|Learned Patterns| Redis
+```
+
+The system consists of 3 main components:
 
 ```mermaid
 graph TD
