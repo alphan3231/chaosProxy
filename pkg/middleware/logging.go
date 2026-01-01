@@ -6,16 +6,31 @@ import (
 	"time"
 )
 
+// responseWriter is a wrapper around http.ResponseWriter to capture the status code.
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
+}
+
 // Logger logs the request details and execution time.
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// Start timer
 		start := time.Now()
 
-		// Wrap ResponseWriter to capture status code could be added here later
+		// Wrap ResponseWriter to capture status code
+		rw := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
 
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(rw, r)
 
-		log.Printf("[REQ] %s %s %s", r.Method, r.URL.Path, time.Since(start))
+		reqID, _ := r.Context().Value(RequestIDKey).(string)
+		log.Printf("[REQ] [%s] %s %s %d %s", reqID, r.Method, r.URL.Path, rw.statusCode, time.Since(start))
 	})
 }
 
