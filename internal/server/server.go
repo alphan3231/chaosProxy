@@ -102,6 +102,7 @@ func (s *Server) setupMiddleware(handler http.Handler) http.Handler {
 	return middleware.Chain(
 		handler,
 		middleware.RequestID,
+		middleware.PoweredBy,
 		trafficMiddleware,
 		middleware.Logger,
 		chaosMiddleware.Chaos,
