@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/elliot/chaosProxy/pkg/infrastructure/redis"
+	"github.com/elliot/chaosProxy/pkg/response"
 )
 
 type HealthResponse struct {
@@ -28,18 +28,16 @@ func HealthCheck(redisClient *redis.Client) http.HandlerFunc {
 			status = "degraded"
 		}
 
-		response := HealthResponse{
+		resp := HealthResponse{
 			Status: status,
 			Redis:  redisStatus,
 		}
 
-		w.Header().Set("Content-Type", "application/json")
+		httpStatus := http.StatusOK
 		if status != "ok" {
-			w.WriteHeader(http.StatusServiceUnavailable)
-		} else {
-			w.WriteHeader(http.StatusOK)
+			httpStatus = http.StatusServiceUnavailable
 		}
 
-		json.NewEncoder(w).Encode(response)
+		response.JSON(w, httpStatus, resp)
 	}
 }
