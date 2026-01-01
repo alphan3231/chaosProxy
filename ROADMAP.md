@@ -19,10 +19,10 @@ The system consists of 3 main components:
 *Goal: A working Go Proxy that forwards and logs traffic.*
 
 - [x] **Project Setup:** Go module structure and basic directories.
-- [ ] **Reverse Proxy Core:** Basic proxy logic using `net/http/httputil`.
-- [ ] **Middleware Structure:** Hook points to capture Request/Response bodies.
-- [ ] **Redis Integration:** Logging structure for every operation (Method, Path, Body, Response).
-- [ ] **Health Check:** Mechanism to continuously check if the "real" backend is alive.
+- [x] **Reverse Proxy Core:** Basic proxy logic using `net/http/httputil`.
+- [x] **Middleware Structure:** Hook points to capture Request/Response bodies.
+- [x] **Redis Integration:** Logging structure for every operation (Method, Path, Body, Response).
+- [x] **Health Check:** Mechanism to continuously check if the "real" backend is alive.
 
 ### Phase 2: The Brain (Learning Engine)
 *Goal: Python service extracting meaningful data from normal traffic.*
@@ -35,16 +35,16 @@ The system consists of 3 main components:
 ### Phase 3: The Ghost (Immortality Mode)
 *Goal: Simulation activated when Backend fails.*
 
-- [ ] **Circuit Breaker:** Cut traffic on Go side when backend gives %X errors or times out.
-- [ ] **Ghost Handover:** Proxy directs traffic to Python service (or pre-prepared data in Redis).
-- [ ] **Semantic Matching:** Analyzing incoming request to generate the most logical "fake" response.
-- [ ] **Chaos Testing:** Intentionally shutting down backend to test system behavior.
+- [x] **Circuit Breaker:** Cut traffic on Go side when backend gives %X errors or times out.
+- [x] **Ghost Handover:** Proxy directs traffic to Python service (or pre-prepared data in Redis).
+- [x] **Semantic Matching:** Analyzing incoming request to generate the most logical "fake" response.
+- [x] **Chaos Testing:** Intentionally shutting down backend to test system behavior.
 
 ### Phase 4: Dashboard & SaaS (Productization)
 *Goal: Providing visibility to the user.*
 
-- [ ] **Web UI (React/Next.js):** Live traffic flow.
-- [ ] **Health Monitor:** Backend uptime and Ghost Mode activation counts.
+- [x] **Web UI (React/Next.js):** Live traffic flow.
+- [x] **Health Monitor:** Backend uptime and Ghost Mode activation counts.
 - [ ] **Traffic Replay:** Feature to replay past traffic.
 - [ ] **Anomaly Detection:** Warnings like "Your API is slower than usual" or "Strange requests incoming".
 

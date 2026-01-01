@@ -57,4 +57,11 @@ All notable changes to this project will be documented in this file.
 - Implemented **IP Filtering Middleware** in Go.
 - Added `block`, `unblock`, and `ls-blocked` commands to CLI.
 - Integrated Redis Set `chaos:settings:blocked_ips` for blocklist management.
+- Updated Dashboard with interactive "Blocked IPs" list.
+
+### 👁️ Phase 9: Observability & Transparency
+- Added `RequestID` Middleware for end-to-end request tracing.
+- Enhanced `Logger` to capture and log HTTP status codes and Request IDs.
+- Implemented `/api/blocked-ips` endpoint to expose blocklist to Dashboard.
+- Added **Blocked IPs** component to Dashboard for real-time visibility.
 
