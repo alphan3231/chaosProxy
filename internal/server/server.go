@@ -41,6 +41,8 @@ func (s *Server) Start() error {
 
 	// Register Health Check
 	mux.HandleFunc("/healthz", handlers.HealthCheck(s.redisClient))
+	// Register Blocked IPs API
+	mux.HandleFunc("/api/blocked-ips", handlers.GetBlockedIPs(s.redisClient))
 
 	// Catch-all to Proxy
 	mux.Handle("/", proxy)
@@ -99,6 +101,7 @@ func (s *Server) setupMiddleware(handler http.Handler) http.Handler {
 
 	return middleware.Chain(
 		handler,
+		middleware.RequestID,
 		trafficMiddleware,
 		middleware.Logger,
 		chaosMiddleware.Chaos,
