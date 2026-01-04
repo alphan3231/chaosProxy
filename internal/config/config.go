@@ -16,6 +16,8 @@ type Config struct {
 	CanaryWeight           int
 	SecurityFuzzingEnabled bool
 	SimulateRegion         string
+	RetryMax               int
+	RetryDelay             int // ms
 }
 
 func getEnv(key, fallback string) string {
@@ -37,6 +39,8 @@ func LoadConfig() *Config {
 		CanaryWeight:           getEnvInt("CANARY_WEIGHT", 0),
 		SecurityFuzzingEnabled: getEnv("SECURITY_FUZZING_ENABLED", "false") == "true",
 		SimulateRegion:         getEnv("SIMULATE_REGION", ""),
+		RetryMax:               getEnvInt("RETRY_COUNT", 0),
+		RetryDelay:             getEnvInt("RETRY_DELAY", 100), // Default 100ms
 	}
 }
 
