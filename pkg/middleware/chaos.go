@@ -9,19 +9,22 @@ import (
 	"time"
 
 	"github.com/elliot/chaosProxy/pkg/infrastructure/redis"
+	"github.com/elliot/chaosProxy/pkg/latency"
 )
 
 type ChaosMiddleware struct {
-	redisClient *redis.Client
-	settings    *redis.ChaosSettings
-	mu          sync.RWMutex
-	lastFetch   time.Time
+	redisClient    *redis.Client
+	settings       *redis.ChaosSettings
+	mu             sync.RWMutex
+	lastFetch      time.Time
+	simulateRegion string
 }
 
-func NewChaosMiddleware(redisClient *redis.Client) *ChaosMiddleware {
+func NewChaosMiddleware(redisClient *redis.Client, simulateRegion string) *ChaosMiddleware {
 	return &ChaosMiddleware{
-		redisClient: redisClient,
-		settings:    &redis.ChaosSettings{}, // Default empty
+		redisClient:    redisClient,
+		settings:       &redis.ChaosSettings{},
+		simulateRegion: simulateRegion,
 	}
 }
 
@@ -56,6 +59,14 @@ func (c *ChaosMiddleware) Chaos(next http.Handler) http.Handler {
 		c.mu.RUnlock()
 
 		// 1. Latency Injection
+		// a) Region Simulation (Static Base Latency)
+		if regionLatency, ok := latency.GetLatency(c.simulateRegion); ok {
+			// Calculate random latency within region range
+			addedLatency := time.Duration(rand.Int63n(int64(regionLatency.Max-regionLatency.Min))) + regionLatency.Min
+			time.Sleep(addedLatency)
+		}
+
+		// b) Dynamic Chaos Latency
 		if settings.LatencyEnabled {
 			min := settings.LatencyMin
 			max := settings.LatencyMax
