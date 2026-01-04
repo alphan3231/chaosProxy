@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/elliot/chaosProxy/pkg/graphql"
 	"github.com/elliot/chaosProxy/pkg/infrastructure/redis"
 )
 
@@ -119,6 +120,17 @@ func TrafficLogger(redisClient *redis.Client) Middleware {
 					Status:       wrapper.statusCode,
 					ResponseBody: sanitizedRespBody,
 					Duration:     duration.String(),
+				}
+
+				// Try to extract GraphQL Operation
+				if r.Method == http.MethodPost && strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+					if op, err := graphql.ParseRequest(reqBody); err == nil && op != nil {
+						opName := op.Name
+						if op.Type == "mutation" {
+							opName = "Mutation: " + opName
+						}
+						entry.GraphQLOperation = opName
+					}
 				}
 
 				// Encode to JSON

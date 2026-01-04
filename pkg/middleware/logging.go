@@ -30,6 +30,7 @@ func Logger(next http.Handler) http.Handler {
 		next.ServeHTTP(rw, r)
 
 		reqID, _ := r.Context().Value(RequestIDKey).(string)
+
 		log.Printf("[REQ] [%s] %s %s %d %s", reqID, r.Method, r.URL.Path, rw.statusCode, time.Since(start))
 	})
 }
