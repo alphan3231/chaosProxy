@@ -109,6 +109,7 @@ func (s *Server) setupMiddleware(handler http.Handler) http.Handler {
 		middleware.PoweredBy,
 		trafficMiddleware,
 		middleware.Logger,
+		middleware.SecurityFuzzer(s.cfg.SecurityFuzzingEnabled),
 		chaosMiddleware.Chaos,
 		middleware.IPFilter(s.redisClient),
 		middleware.RateLimit(rateLimiter),
