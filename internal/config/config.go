@@ -6,14 +6,15 @@ import (
 )
 
 type Config struct {
-	Port          string
-	TargetURL     string
-	RedisAddr     string
-	RedisPassword string
-	AppEnv        string
-	WebhookURL    string
-	CanaryURL     string
-	CanaryWeight  int
+	Port                   string
+	TargetURL              string
+	RedisAddr              string
+	RedisPassword          string
+	AppEnv                 string
+	WebhookURL             string
+	CanaryURL              string
+	CanaryWeight           int
+	SecurityFuzzingEnabled bool
 }
 
 func getEnv(key, fallback string) string {
@@ -25,14 +26,15 @@ func getEnv(key, fallback string) string {
 
 func LoadConfig() *Config {
 	return &Config{
-		Port:          getEnv("PORT", "8080"),
-		TargetURL:     getEnv("TARGET_URL", "http://httpbin.org"),
-		RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),
-		RedisPassword: getEnv("REDIS_PASSWORD", ""),
-		AppEnv:        getEnv("APP_ENV", "development"),
-		WebhookURL:    getEnv("WEBHOOK_URL", ""),
-		CanaryURL:     getEnv("CANARY_URL", ""),
-		CanaryWeight:  getEnvInt("CANARY_WEIGHT", 0),
+		Port:                   getEnv("PORT", "8080"),
+		TargetURL:              getEnv("TARGET_URL", "http://httpbin.org"),
+		RedisAddr:              getEnv("REDIS_ADDR", "localhost:6379"),
+		RedisPassword:          getEnv("REDIS_PASSWORD", ""),
+		AppEnv:                 getEnv("APP_ENV", "development"),
+		WebhookURL:             getEnv("WEBHOOK_URL", ""),
+		CanaryURL:              getEnv("CANARY_URL", ""),
+		CanaryWeight:           getEnvInt("CANARY_WEIGHT", 0),
+		SecurityFuzzingEnabled: getEnv("SECURITY_FUZZING_ENABLED", "false") == "true",
 	}
 }
 
