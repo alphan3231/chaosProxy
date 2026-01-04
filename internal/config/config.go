@@ -15,6 +15,7 @@ type Config struct {
 	CanaryURL              string
 	CanaryWeight           int
 	SecurityFuzzingEnabled bool
+	SimulateRegion         string
 }
 
 func getEnv(key, fallback string) string {
@@ -35,6 +36,7 @@ func LoadConfig() *Config {
 		CanaryURL:              getEnv("CANARY_URL", ""),
 		CanaryWeight:           getEnvInt("CANARY_WEIGHT", 0),
 		SecurityFuzzingEnabled: getEnv("SECURITY_FUZZING_ENABLED", "false") == "true",
+		SimulateRegion:         getEnv("SIMULATE_REGION", ""),
 	}
 }
 
