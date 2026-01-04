@@ -10,6 +10,7 @@ type Config struct {
 	RedisAddr     string
 	RedisPassword string
 	AppEnv        string
+	WebhookURL    string
 }
 
 func getEnv(key, fallback string) string {
@@ -26,5 +27,6 @@ func LoadConfig() *Config {
 		RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),
 		RedisPassword: getEnv("REDIS_PASSWORD", ""),
 		AppEnv:        getEnv("APP_ENV", "development"),
+		WebhookURL:    getEnv("WEBHOOK_URL", ""),
 	}
 }
