@@ -44,8 +44,12 @@ func (s *Server) Start() error {
 	// Register Blocked IPs API
 	mux.HandleFunc("/api/blocked-ips", handlers.GetBlockedIPs(s.redisClient))
 
+	// Calculate Canary Proxy
+	canaryMiddleware := middleware.NewCanary(s.cfg.CanaryURL, s.cfg.CanaryWeight)
+	finalProxy := canaryMiddleware(proxy)
+
 	// Catch-all to Proxy
-	mux.Handle("/", proxy)
+	mux.Handle("/", finalProxy)
 
 	// Setup Middleware Chain
 	handler := s.setupMiddleware(mux)
