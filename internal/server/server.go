@@ -34,6 +34,12 @@ func (s *Server) Start() error {
 
 	// Create the Reverse Proxy
 	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	// Set Custom Transport for Retries
+	if s.cfg.RetryMax > 0 {
+		proxy.Transport = middleware.NewRetryTransport(http.DefaultTransport, s.cfg.RetryMax, s.cfg.RetryDelay)
+	}
+
 	s.setupProxy(proxy, target)
 
 	// Setup Router (Mux)
