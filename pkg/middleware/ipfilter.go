@@ -17,8 +17,11 @@ func IPFilter(redisClient *redis.Client) Middleware {
 
 			blocked, err := redisClient.IsIPBlocked(context.Background(), ip)
 			if err != nil {
-				// Fail open on Redis error, log it
+				// Fail secure: If we can't check the blocklist, block the request to be safe
 				log.Printf("Failed to check blocklist for %s: %v", ip, err)
+				w.WriteHeader(http.StatusServiceUnavailable)
+				w.Write([]byte(`{"error": "Security Check Failed"}`))
+				return
 			} else if blocked {
 				log.Printf("🚫 Blocked request from %s", ip)
 				w.WriteHeader(http.StatusForbidden)
