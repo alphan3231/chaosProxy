@@ -22,10 +22,19 @@ export async function logs(options: LogsOptions): Promise<void> {
         args.push('-f');
     }
 
+    const validServices = ['sentinel', 'brain', 'dashboard', 'redis'];
+
     if (options.service) {
+        if (!validServices.includes(options.service)) {
+            console.log(chalk.red(`❌ Invalid service: ${options.service}`));
+            console.log(chalk.yellow(`   Available services: ${validServices.join(', ')}`));
+            process.exit(1);
+        }
         args.push(options.service);
     }
 
+    // Use shell: true because docker-compose might not be in PATH directly on some systems
+    // But since we validated inputs, it's safer.
     const child = spawn('docker-compose', args, {
         stdio: 'inherit',
         shell: true
