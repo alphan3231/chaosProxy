@@ -134,3 +134,8 @@ func (c *Client) GetChaosSettings(ctx context.Context) (*ChaosSettings, error) {
 func (c *Client) IsIPBlocked(ctx context.Context, ip string) (bool, error) {
 	return c.rdb.SIsMember(ctx, "chaos:settings:blocked_ips", ip).Result()
 }
+
+// GetBlockedIPs returns the list of all blocked IPs
+func (c *Client) GetBlockedIPs(ctx context.Context) ([]string, error) {
+	return c.rdb.SMembers(ctx, "chaos:settings:blocked_ips").Result()
+}

@@ -5,23 +5,69 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/elliot/chaosProxy/pkg/infrastructure/redis"
 )
 
+type CachedIPFilter struct {
+	redisClient *redis.Client
+	blockedIPs  map[string]bool
+	lastFetch   time.Time
+	mu          sync.RWMutex
+}
+
+func NewCachedIPFilter(redisClient *redis.Client) *CachedIPFilter {
+	return &CachedIPFilter{
+		redisClient: redisClient,
+		blockedIPs:  make(map[string]bool),
+	}
+}
+
+func (f *CachedIPFilter) refresh() {
+	f.mu.RLock()
+	if time.Since(f.lastFetch) < 5*time.Second {
+		f.mu.RUnlock()
+		return
+	}
+	f.mu.RUnlock()
+
+	// Fetch all blocked IPs
+	// Note: We need to implement GetBlockedIPs in redis client or use SMembers
+	ips, err := f.redisClient.GetBlockedIPs(context.Background())
+	if err != nil {
+		log.Printf("Failed to refresh blocked IPs: %v", err)
+		return
+	}
+
+	newMap := make(map[string]bool)
+	for _, ip := range ips {
+		newMap[ip] = true
+	}
+
+	f.mu.Lock()
+	f.blockedIPs = newMap
+	f.lastFetch = time.Now()
+	f.mu.Unlock()
+}
+
+func (f *CachedIPFilter) IsBlocked(ip string) bool {
+	f.refresh()
+	f.mu.RLock()
+	defer f.mu.RUnlock()
+	return f.blockedIPs[ip]
+}
+
 func IPFilter(redisClient *redis.Client) Middleware {
+	filter := NewCachedIPFilter(redisClient)
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ip := getRealIP(r)
 
-			blocked, err := redisClient.IsIPBlocked(context.Background(), ip)
-			if err != nil {
-				// Fail secure: If we can't check the blocklist, block the request to be safe
-				log.Printf("Failed to check blocklist for %s: %v", ip, err)
-				w.WriteHeader(http.StatusServiceUnavailable)
-				w.Write([]byte(`{"error": "Security Check Failed"}`))
-				return
-			} else if blocked {
+			// Use cached check
+			if filter.IsBlocked(ip) {
 				log.Printf("🚫 Blocked request from %s", ip)
 				w.WriteHeader(http.StatusForbidden)
 				w.Write([]byte(`{"error": "Access Denied"}`))
