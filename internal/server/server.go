@@ -1,10 +1,14 @@
 package server
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/elliot/chaosProxy/internal/config"
@@ -61,10 +65,34 @@ func (s *Server) Start() error {
 	handler := s.setupMiddleware(mux)
 
 	// Start the Server
-	log.Printf("👻 Chaos-Proxy Sentinel starting on :%s", s.cfg.Port)
-	log.Printf("🎯 Forwarding to: %s", s.cfg.TargetURL)
+	srv := &http.Server{
+		Addr:    ":" + s.cfg.Port,
+		Handler: handler,
+	}
 
-	return http.ListenAndServe(":"+s.cfg.Port, handler)
+	go func() {
+		log.Printf("👻 Chaos-Proxy Sentinel starting on :%s", s.cfg.Port)
+		log.Printf("🎯 Forwarding to: %s", s.cfg.TargetURL)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
+
+	// Graceful Shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("🛑 Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("👋 Server exited gracefully")
+	return nil
 }
 
 func (s *Server) setupProxy(proxy *httputil.ReverseProxy, target *url.URL) {
