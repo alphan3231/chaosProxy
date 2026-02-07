@@ -82,13 +82,25 @@ func (s *Server) setupProxy(proxy *httputil.ReverseProxy, target *url.URL) {
 
 			// Set Ghost Headers
 			w.Header().Set("X-Chaos-Ghost", "true")
-			// w.Header().Set("X-Chaos-Original-Status", fmt.Sprintf("%d", ghost.Status)) // Original status might be useful
 
-			// Detect Content-Type from ghost response body if possible, or fallback to application/json
-			if http.DetectContentType([]byte(ghost.ResponseBody)) != "application/octet-stream" {
-				w.Header().Set("Content-Type", http.DetectContentType([]byte(ghost.ResponseBody)))
-			} else {
-				w.Header().Set("Content-Type", "application/json")
+			// Replay original headers if available
+			for k, values := range ghost.ResponseHeaders {
+				// Skip sensitive or problematic headers (like Content-Length which will be recalculated)
+				if k == "Content-Length" || k == "Connection" || k == "Date" {
+					continue
+				}
+				for _, v := range values {
+					w.Header().Add(k, v)
+				}
+			}
+
+			// If Content-Type wasn't in the recorded headers, try to detect it
+			if w.Header().Get("Content-Type") == "" {
+				if http.DetectContentType([]byte(ghost.ResponseBody)) != "application/octet-stream" {
+					w.Header().Set("Content-Type", http.DetectContentType([]byte(ghost.ResponseBody)))
+				} else {
+					w.Header().Set("Content-Type", "application/json")
+				}
 			}
 
 			w.WriteHeader(ghost.Status)
