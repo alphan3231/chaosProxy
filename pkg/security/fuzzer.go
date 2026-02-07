@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // Common payloads for basic fuzzing
@@ -60,8 +61,17 @@ func Fuzz(originalReq *http.Request) {
 	}
 }
 
+// Limit concurrent fuzzing requests to prevent self-DoS
+var concurrencySemaphore = make(chan struct{}, 10)
+
 func executeFuzzRequest(fuzzURL string, headers http.Header) {
-	client := &http.Client{}
+	// Acquire token
+	concurrencySemaphore <- struct{}{}
+	defer func() { <-concurrencySemaphore }()
+
+	client := &http.Client{
+		Timeout: 5 * time.Second, // Add timeout to prevent hanging connections
+	}
 	req, err := http.NewRequest("GET", fuzzURL, nil)
 	if err != nil {
 		return
