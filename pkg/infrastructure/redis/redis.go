@@ -44,10 +44,11 @@ type TrafficLog struct {
 	Method           string    `json:"method"`
 	Path             string    `json:"path"`
 	RequestBody      string    `json:"request_body"`
-	Status           int       `json:"status"`
-	ResponseBody     string    `json:"response_body"`
-	Duration         string    `json:"duration"`
-	GraphQLOperation string    `json:"graphql_operation,omitempty"`
+	Status           int                 `json:"status"`
+	ResponseBody     string              `json:"response_body"`
+	ResponseHeaders  map[string][]string `json:"response_headers,omitempty"`
+	Duration         string              `json:"duration"`
+	GraphQLOperation string              `json:"graphql_operation,omitempty"`
 }
 
 func (c *Client) PublishTraffic(ctx context.Context, logEntry TrafficLog) error {

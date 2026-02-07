@@ -113,13 +113,14 @@ func TrafficLogger(redisClient *redis.Client) Middleware {
 
 				// Create log entry
 				entry := redis.TrafficLog{
-					Timestamp:    start,
-					Method:       r.Method,
-					Path:         r.URL.Path,
-					RequestBody:  sanitizedReqBody,
-					Status:       wrapper.statusCode,
-					ResponseBody: sanitizedRespBody,
-					Duration:     duration.String(),
+					Timestamp:       start,
+					Method:          r.Method,
+					Path:            r.URL.Path,
+					RequestBody:     sanitizedReqBody,
+					Status:          wrapper.statusCode,
+					ResponseBody:    sanitizedRespBody,
+					ResponseHeaders: wrapper.Header(),
+					Duration:        duration.String(),
 				}
 
 				// Try to extract GraphQL Operation
