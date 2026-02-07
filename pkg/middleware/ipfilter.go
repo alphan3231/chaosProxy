@@ -32,15 +32,8 @@ func IPFilter(redisClient *redis.Client) Middleware {
 }
 
 func getRealIP(r *http.Request) string {
-	// Check X-Forwarded-For
-	xfwd := r.Header.Get("X-Forwarded-For")
-	if xfwd != "" {
-		// Can look like "client_ip, proxy1, proxy2"
-		ips := strings.Split(xfwd, ",")
-		return strings.TrimSpace(ips[0])
-	}
-
-	// Fallback to RemoteAddr
+	// Security: Do not trust X-Forwarded-For or X-Real-IP headers as they can be spoofed.
+	// Since this proxy is intended to be the edge sentinel, we rely on the actual RemoteAddr.
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr
