@@ -83,7 +83,13 @@ func (s *Server) setupProxy(proxy *httputil.ReverseProxy, target *url.URL) {
 			// Set Ghost Headers
 			w.Header().Set("X-Chaos-Ghost", "true")
 			// w.Header().Set("X-Chaos-Original-Status", fmt.Sprintf("%d", ghost.Status)) // Original status might be useful
-			w.Header().Set("Content-Type", "application/json") // Assuming JSON for now
+
+			// Detect Content-Type from ghost response body if possible, or fallback to application/json
+			if http.DetectContentType([]byte(ghost.ResponseBody)) != "application/octet-stream" {
+				w.Header().Set("Content-Type", http.DetectContentType([]byte(ghost.ResponseBody)))
+			} else {
+				w.Header().Set("Content-Type", "application/json")
+			}
 
 			w.WriteHeader(ghost.Status)
 			w.Write([]byte(ghost.ResponseBody))
