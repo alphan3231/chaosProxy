@@ -28,7 +28,7 @@ func getEnv(key, fallback string) string {
 }
 
 func LoadConfig() *Config {
-	return &Config{
+	cfg := &Config{
 		Port:                   getEnv("PORT", "8080"),
 		TargetURL:              getEnv("TARGET_URL", "http://httpbin.org"),
 		RedisAddr:              getEnv("REDIS_ADDR", "localhost:6379"),
@@ -42,6 +42,12 @@ func LoadConfig() *Config {
 		RetryMax:               getEnvInt("RETRY_COUNT", 0),
 		RetryDelay:             getEnvInt("RETRY_DELAY", 100), // Default 100ms
 	}
+
+	if cfg.RedisPassword == "" && cfg.AppEnv == "production" {
+		fmt.Println("⚠️  WARNING: Running in production without a Redis password is insecure!")
+	}
+
+	return cfg
 }
 
 func getEnvInt(key string, fallback int) int {
