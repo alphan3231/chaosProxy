@@ -121,6 +121,34 @@ func TestRateLimiter_DifferentIPs(t *testing.T) {
 	}
 }
 
+func TestRateLimiter_Stop(t *testing.T) {
+	limiter := NewRateLimiter(5, time.Minute)
+
+	// Ensure channel is open initially
+	select {
+	case <-limiter.stopChan:
+		// If we receive from it immediately, it might be closed (unexpected)
+		// But since it's unbuffered and no one is sending, receiving would block if open.
+		// However, in the test we can't easily check "is open" without blocking.
+		// We rely on the fact that Stop() closes it.
+	default:
+		// Good, it blocked (meaning it's open and empty)
+	}
+
+	limiter.Stop()
+
+	// Ensure channel is closed
+	select {
+	case _, ok := <-limiter.stopChan:
+		if ok {
+			t.Error("Received value from stopChan, expected close")
+		}
+		// Good, closed channel
+	case <-time.After(100 * time.Millisecond):
+		t.Error("stopChan should be closed after Stop()")
+	}
+}
+
 func TestRateLimit_Middleware(t *testing.T) {
 	limiter := NewRateLimiter(2, time.Minute)
 
