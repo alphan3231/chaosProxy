@@ -129,6 +129,7 @@ func (s *Server) setupMiddleware(handler http.Handler) http.Handler {
 
 	return middleware.Chain(
 		handler,
+		middleware.Recovery, // Recovery should be first (outermost) to catch panics in any middleware
 		middleware.RequestID,
 		middleware.PoweredBy,
 		trafficMiddleware,
@@ -137,6 +138,5 @@ func (s *Server) setupMiddleware(handler http.Handler) http.Handler {
 		chaosMiddleware.Chaos,
 		middleware.IPFilter(s.redisClient),
 		middleware.RateLimit(rateLimiter),
-		middleware.Recovery,
 	)
 }
