@@ -29,23 +29,26 @@ func NewChaosMiddleware(redisClient *redis.Client, simulateRegion string) *Chaos
 }
 
 func (c *ChaosMiddleware) refreshSettings() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	// Cache for 1 second to avoid hitting Redis on every request
+	// Optimistic check with Read Lock
+	c.mu.RLock()
 	if time.Since(c.lastFetch) < 1*time.Second {
+		c.mu.RUnlock()
 		return
 	}
+	c.mu.RUnlock()
 
+	// Fetch new settings (no lock held during I/O)
 	settings, err := c.redisClient.GetChaosSettings(context.Background())
 	if err != nil {
 		// Log error but continue with old settings
-		// log.Printf("Failed to fetch chaos settings: %v", err)
 		return
 	}
 
+	// Update with Write Lock
+	c.mu.Lock()
 	c.settings = settings
 	c.lastFetch = time.Now()
+	c.mu.Unlock()
 }
 
 func (c *ChaosMiddleware) Chaos(next http.Handler) http.Handler {
