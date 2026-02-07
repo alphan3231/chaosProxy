@@ -21,6 +21,7 @@ func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
 	}
 
 	// Cleanup goroutine
+	// TODO: Add context or stop channel for graceful shutdown in future
 	go func() {
 		for {
 			time.Sleep(window)
@@ -32,22 +33,37 @@ func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
 }
 
 func (rl *RateLimiter) cleanup() {
-	rl.mu.Lock()
-	defer rl.mu.Unlock()
+	// First pass: just read to collect keys (holding Read Lock)
+	rl.mu.RLock()
+	var keys []string
+	for k := range rl.requests {
+		keys = append(keys, k)
+	}
+	rl.mu.RUnlock()
 
+	// Second pass: cleanup individual entries (holding Write Lock briefly per entry)
 	now := time.Now()
-	for ip, timestamps := range rl.requests {
+	for _, ip := range keys {
+		rl.mu.Lock()
+		timestamps, exists := rl.requests[ip]
+		if !exists {
+			rl.mu.Unlock()
+			continue
+		}
+
 		var valid []time.Time
 		for _, t := range timestamps {
 			if now.Sub(t) < rl.window {
 				valid = append(valid, t)
 			}
 		}
+
 		if len(valid) == 0 {
 			delete(rl.requests, ip)
 		} else {
 			rl.requests[ip] = valid
 		}
+		rl.mu.Unlock()
 	}
 }
 
