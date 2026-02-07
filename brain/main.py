@@ -11,6 +11,7 @@ load_dotenv()
 # Configuration
 REDIS_ADDR = os.getenv("REDIS_ADDR", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", None)
 CHANNEL = "chaos:traffic"
 
 # Setup Logging
@@ -23,9 +24,14 @@ logger = logging.getLogger(__name__)
 
 def main():
     logger.info(f"Connecting to Redis at {REDIS_ADDR}:{REDIS_PORT}...")
-    
+
     try:
-        r = redis.Redis(host=REDIS_ADDR, port=REDIS_PORT, decode_responses=True)
+        r = redis.Redis(
+            host=REDIS_ADDR,
+            port=REDIS_PORT,
+            password=REDIS_PASSWORD,
+            decode_responses=True
+        )
         learner = Learner(r)
 
         pubsub = r.pubsub()
