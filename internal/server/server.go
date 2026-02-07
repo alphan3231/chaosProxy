@@ -164,11 +164,11 @@ func (s *Server) setupMiddleware(handler http.Handler, rateLimiter *middleware.R
 		middleware.Recovery, // Recovery should be first (outermost) to catch panics in any middleware
 		middleware.RequestID,
 		middleware.PoweredBy,
-		trafficMiddleware,
 		middleware.Logger,
+		middleware.RateLimit(rateLimiter),
+		middleware.IPFilter(s.redisClient),
 		middleware.SecurityFuzzer(s.cfg.SecurityFuzzingEnabled),
 		chaosMiddleware.Chaos,
-		middleware.IPFilter(s.redisClient),
-		middleware.RateLimit(rateLimiter),
+		trafficMiddleware,
 	)
 }
