@@ -11,6 +11,7 @@ type RateLimiter struct {
 	mu       sync.RWMutex
 	limit    int
 	window   time.Duration
+	stopChan chan struct{}
 }
 
 func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
@@ -18,18 +19,28 @@ func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
 		requests: make(map[string][]time.Time),
 		limit:    limit,
 		window:   window,
+		stopChan: make(chan struct{}),
 	}
 
 	// Cleanup goroutine
-	// TODO: Add context or stop channel for graceful shutdown in future
 	go func() {
+		ticker := time.NewTicker(window)
+		defer ticker.Stop()
 		for {
-			time.Sleep(window)
-			rl.cleanup()
+			select {
+			case <-ticker.C:
+				rl.cleanup()
+			case <-rl.stopChan:
+				return
+			}
 		}
 	}()
 
 	return rl
+}
+
+func (rl *RateLimiter) Stop() {
+	close(rl.stopChan)
 }
 
 func (rl *RateLimiter) cleanup() {
