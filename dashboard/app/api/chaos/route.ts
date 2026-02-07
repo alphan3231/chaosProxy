@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
 
         // Validate and prepare data for Redis
         const settings = {
-            latency_enabled: String(body.latency_enabled),
+            latency_enabled: body.latency_enabled === true || body.latency_enabled === 'true' ? 'true' : 'false',
             latency_min: String(body.latency_min),
             latency_max: String(body.latency_max),
-            failure_enabled: String(body.failure_enabled),
+            failure_enabled: body.failure_enabled === true || body.failure_enabled === 'true' ? 'true' : 'false',
             failure_rate: String(body.failure_rate),
         };
 
