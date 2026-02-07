@@ -76,20 +76,12 @@ func (rl *RateLimiter) Allow(ip string) bool {
 }
 
 func getClientIP(r *http.Request) string {
-	// Check X-Forwarded-For first (for proxied requests)
-	xff := r.Header.Get("X-Forwarded-For")
-	if xff != "" {
-		return xff
+	// Security: Do not trust headers. Use RemoteAddr.
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
 	}
-
-	// Check X-Real-IP
-	xri := r.Header.Get("X-Real-IP")
-	if xri != "" {
-		return xri
-	}
-
-	// Fallback to RemoteAddr
-	return r.RemoteAddr
+	return ip
 }
 
 func RateLimit(limiter *RateLimiter) Middleware {
