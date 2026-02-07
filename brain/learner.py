@@ -32,7 +32,7 @@ class Learner:
         ghost_response = {
             "status": data.get('status'),
             "body": data.get('response_body'),
-            "headers": {}, # We didn't capture headers in MVP yet
+            "headers": data.get('response_headers', {}),
             "timestamp": data.get('timestamp')
         }
         
