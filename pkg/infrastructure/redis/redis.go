@@ -52,17 +52,18 @@ type TrafficLog struct {
 }
 
 func (c *Client) PublishTraffic(ctx context.Context, logEntry TrafficLog) error {
-	// 1. Publish to channel for Brain
-	if err := c.rdb.Publish(ctx, "chaos:traffic", logEntry).Err(); err != nil {
-		return err
-	}
-
-	// 2. Store in Recent Logs List (capped at 50)
+	// Marshal to JSON
 	data, err := json.Marshal(logEntry)
 	if err != nil {
 		return err
 	}
 
+	// 1. Publish to channel for Brain
+	if err := c.rdb.Publish(ctx, "chaos:traffic", data).Err(); err != nil {
+		return err
+	}
+
+	// 2. Store in Recent Logs List (capped at 50)
 	pipe := c.rdb.Pipeline()
 	pipe.LPush(ctx, "chaos:logs:recent", data)
 	pipe.LTrim(ctx, "chaos:logs:recent", 0, 49) // Keep last 50
