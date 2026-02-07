@@ -61,8 +61,9 @@ func (s *Server) Start() error {
 	// Catch-all to Proxy
 	mux.Handle("/", finalProxy)
 
-	// Setup Middleware Chain
-	handler := s.setupMiddleware(mux)
+	// Setup Middleware Chain & Rate Limiter
+	rateLimiter := middleware.NewRateLimiter(100, time.Minute) // 100 requests per minute per IP
+	handler := s.setupMiddleware(mux, rateLimiter)
 
 	// Start the Server
 	srv := &http.Server{
@@ -83,6 +84,9 @@ func (s *Server) Start() error {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("🛑 Shutting down server...")
+
+	// Stop Rate Limiter cleanup
+	rateLimiter.Stop()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -149,9 +153,9 @@ func (s *Server) setupProxy(proxy *httputil.ReverseProxy, target *url.URL) {
 	}
 }
 
-func (s *Server) setupMiddleware(handler http.Handler) http.Handler {
+func (s *Server) setupMiddleware(handler http.Handler, rateLimiter *middleware.RateLimiter) http.Handler {
 	// Order: Recovery -> RateLimit -> IPFilter -> Chaos -> Logger -> TrafficLogger -> Mux
-	rateLimiter := middleware.NewRateLimiter(100, time.Minute) // 100 requests per minute per IP
+	// rateLimiter is now passed in
 	chaosMiddleware := middleware.NewChaosMiddleware(s.redisClient, s.cfg.SimulateRegion)
 	trafficMiddleware := middleware.TrafficLogger(s.redisClient)
 
