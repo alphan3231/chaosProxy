@@ -2,8 +2,15 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-    // Only protect API routes
-    if (!request.nextUrl.pathname.startsWith('/api')) {
+    const path = request.nextUrl.pathname;
+
+    // Define public paths (static assets, images, etc.)
+    // We want to protect root "/" and "/api/*"
+    const isPublic = path.startsWith('/_next') ||
+                     path.startsWith('/static') ||
+                     path.includes('.'); // Simple check for files like favicon.ico, logo.svg
+
+    if (isPublic) {
         return NextResponse.next();
     }
 
@@ -45,5 +52,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: '/api/:path*',
+    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

@@ -39,7 +39,6 @@ export default function ChaosControl() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Basic ' + btoa('admin:chaos123'), // Basic Auth Demo
                 },
                 body: JSON.stringify(settings),
             });
