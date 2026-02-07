@@ -10,9 +10,17 @@ export async function status(options: StatusOptions): Promise<void> {
     console.log(chalk.cyan('\n🔍 Checking Chaos-Proxy status...\n'));
 
     // Parse Redis URL
-    const redisUrl = new URL(options.redis);
-    const host = redisUrl.hostname;
-    const port = parseInt(redisUrl.port) || 6379;
+    let host = 'localhost';
+    let port = 6379;
+
+    try {
+        const redisUrl = new URL(options.redis);
+        host = redisUrl.hostname;
+        port = parseInt(redisUrl.port) || 6379;
+    } catch (error) {
+        console.log(chalk.red(`❌ Invalid Redis URL: ${options.redis}`));
+        console.log(chalk.yellow('   Using default: redis://localhost:6379\n'));
+    }
 
     // Check Redis
     const redisSpinner = ora('Checking Redis connection...').start();
