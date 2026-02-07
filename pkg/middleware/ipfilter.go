@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"strings"
 
 	"github.com/elliot/chaosProxy/pkg/infrastructure/redis"
 )
